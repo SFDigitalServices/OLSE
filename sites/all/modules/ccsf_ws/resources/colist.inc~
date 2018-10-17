@@ -1,0 +1,71 @@
+<?php
+
+function _ccsf_ws_colist($rolenames) {
+  if ($rolenames == '') {
+    $rolenames = "'Compliance Officer'";
+  }
+
+  $response = array();
+
+  $result = db_query("SELECT u.name as 'name', u.uid as 'uid'
+            FROM users u
+            JOIN users_roles ur ON U.uid = ur.uid
+            JOIN role r ON r.rid = ur.rid
+            WHERE r.name in (" . $rolenames . ");"
+  );
+
+  foreach ($result as $record) {
+    $response[] = array('id' => $record->name, 'name' => $record->name);
+  }
+  return ($response);
+
+}
+function _ccsf_ws_get_next_id($casetype){
+  $select = "select count(*) + 1 as 'total' from field_data_field_claim_type where field_claim_type_value='$casetype'; ";
+
+  return $casetype ."-". db_query($select)->fetchField();
+}
+
+function ccsf_ws_query_colist_alter($query) {
+  $query->join('users_roles', 'ur', 'ur.rid=role.rid');
+  $query->join('user', 'u', 'u.uid = ur.rid');
+  error_log($query);
+}
+
+/**
+ * Set notification reminder for user(s)
+ */
+function _setup_reminder($postdata){
+  global $user;
+  $remind_days = check_plain($postdata['remind_days']);
+  $message = mysql_real_escape_string(check_plain(($postdata['message'])));
+  $description = check_plain($postdata['description']);
+  $cclist = mysql_real_escape_string(check_plain($postdata['cclist']));
+  if($cclist != '')
+    $cclist .= ", ".$user->mail;
+  else
+    $cclist = $user->mail;
+  $activityid = check_plain($postdata['activityid']);
+
+  $data = array(
+    'acivityid' => $activityid,
+    'remind_days' => $remind_days,
+    'message' => "$message",
+    'description' => "$description",
+    'cclist' => "$cclist",
+    'status' => 'new',
+  );
+
+  // insert into table, write cron script.
+  $id = db_insert('activity_reminder')->fields($data)->execute();
+  return $id;
+}
+
+function _get_case_numbers($input){
+  //get a list of case numbers(node title) where type = intake_form
+  $select = "SELECT title, nid FROM node WHERE title like '%".$input."%';";
+
+  $result = db_query($select)->fetchAll();
+
+  return drupal_json_encode($result);
+}

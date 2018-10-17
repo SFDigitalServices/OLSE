@@ -1,0 +1,436 @@
+<?php
+
+// ccsf_ws.module
+/**
+ * Implements hook_init().
+ */
+function ccsf_ws_init() {
+  //drupal_add_css(drupal_get_path('module', 'ccsf_ws') . '/css/notes.css');
+  //drupal_add_js(drupal_get_path('module', 'ccsf_ws') . '/js/notes.js');
+}
+/**
+ * Implements hook_services_request_postprocess_alter
+ */
+function ccsf_ws_services_request_postprocess_alter($controller, $args, &$result) {
+    if ($controller['callback'] === '_system_resource_connect') {
+        $result->user->picture = (!empty($result->user->picture)) ? $result->user->picture : 'http://srv.local/sites/default/files/220px-Nyan_cat_250px_frame.PNG' ;
+    }
+}
+
+/**
+ * Implements hook_services_resources
+ */
+function ccsf_ws_services_resources() {
+    return array(
+        'colist' => array(
+          'index' => array(
+                'help' => 'Says "List of Compliance Officers"',
+                'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+                'callback' => '_ccsf_ws_colist',
+                'access callback' => '_ccsf_ws_services_access',
+                'args' => array(
+                    array(
+                        'name' => 'rolenames',
+                        'type' => 'string',
+                        'description' => 'user roles to get',
+                        'source' => array('path' => '0'),
+                        'optional' => TRUE,
+                    ),
+                ),
+            ),
+        ),
+      'casetype' => array(
+          'retrieve' => array(
+            'help' => 'Says "Get next ID for case type"',
+            'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+            'callback' => '_ccsf_ws_get_next_id',
+            'access callback' => '_ccsf_ws_services_access',
+            'args' => array(
+              array(
+                'name' => 'casetype',
+                'type' => 'string',
+                'description' => 'case type to get',
+                'source' => array('path' => '0'),
+                'optional' => TRUE,
+              ),
+          ),
+        ),
+      ),
+      'reminder' => array(
+        'create' => array(
+          'help' => 'Says "Set up notification reminder for user"',
+          'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+          'callback' => '_setup_reminder',
+          'access arguments' => array('create'),
+          'access callback' => '_ccsf_ws_services_access',
+          'args' => array(
+            array(
+              'name' => 'data',
+              'type' => 'array',
+              'description' => 'post parameters',
+              'source' => 'data',
+              'optional' => FALSE
+            )
+          ),
+        ),
+      ),
+      'casenumber' => array(
+          'retrieve' => array(
+            'help' => 'Says "Get a list of case numbers(node title)"',
+            'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+            'callback' => '_get_case_numbers',
+            'access callback' => '_ccsf_ws_services_access',
+            'args' => array(
+              array(
+                'name' => 'input',
+                'type' => 'string',
+                'description' => 'post parameters',
+                'source' => array('path' => 0),
+                'optional' => FALSE
+              )
+            ),
+          ),
+      ),
+      'dashboard' => array(
+          'index' => array(
+              'help' => 'Shows the dashboard',
+              'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/ccsf_ws.resource'),
+              'callback' => '_ccsf_ws_dashboard',
+              'access callback' => '_ccsf_ws_services_access',
+          ),
+      ),
+    );
+}
+
+function _ccsf_ws_services_access() {
+    return TRUE;
+    // return user_is_logged_in();
+}
+
+/**
+ * Implements user registration form alter
+ */
+
+function ccsf_ws_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  // alter user registration form
+//error_log("form alter: ".$form_state['values']['field_stephidden'][LANGUAGE_NONE][0]['value']);
+  if( "user_register_form" == $form_id){
+    $form['#validate'][] = 'ccsf_ws_update_user_terms';
+  }
+  // alter intake form
+  elseif("intake_form_node_form" == $form_id){
+    //if($form_state['triggering_element']["#name"] == "activitysheet"){
+      $form['field_activity_summary'][LANGUAGE_NONE]['actions']['ief_add']['#access'] = FALSE;
+      $form['field_act_compliance_officers'][LANGUAGE_NONE]['#default_value'] = array(ccsf_ws_get_comp_officer_name($user->name));
+
+      //dpm($form['field_act_compliance_officers'][LANGUAGE_NONE]);
+      /*$form['field_activity_summary'][LANGUAGE_NONE]['actions']['ief_save'] = array(
+        '#type' => 'checkbox',
+        '#access' => TRUE,
+        '#value' => 0,
+        '#field_suffix' => "Save Activity",
+        '#weight' => 11,
+      );
+    */
+      $form['actions']['submit']['#submit'][] = "ccsf_ws_save_activity_summary";
+
+    //}
+  }
+}
+
+function ccsf_ws_save_activity_summary($form,&$form_state){
+  global $base_url;
+  // save to Activity to Activity summary Field Collection.
+  if($form_state['values']['field_save_current_activity'][LANGUAGE_NONE][0]['value'] == 1){
+    $node = node_load($form_state['values']['nid']);
+      try{
+        $activity_date = (isset($form_state['values']['field_activity_date'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_date'][LANGUAGE_NONE][0]['value']: "";
+        $activity_type = (isset($form_state['values']['field_activity_type'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_type'][LANGUAGE_NONE][0]['value']: "";
+        $activity_notes = (isset($form_state['values']['field_activity_notes'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_notes'][LANGUAGE_NONE][0]['value']: "";
+        $activity_description = (isset($form_state['values']['field_activity_description'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_description'][LANGUAGE_NONE][0]['value']: "";
+        $activity_other_description = (isset($form_state['values']['field_other_activity_description'][LANGUAGE_NONE]) ) ? $form_state['values']['field_other_activity_description'][LANGUAGE_NONE][0]['value']: "";
+
+        $time_spent = (isset($form_state['values']['field_time_spent'][LANGUAGE_NONE]) ) ? $form_state['values']['field_time_spent'][LANGUAGE_NONE][0]['value']: "";
+        $reminder_days = (isset($form_state['values']['field_notification_email_in'][LANGUAGE_NONE]) ) ? $form_state['values']['field_notification_email_in'][LANGUAGE_NONE][0]['value']: "";
+        $compliance_officer = (isset($form_state['values']['field_act_compliance_officers'][LANGUAGE_NONE][0]) ) ? $form_state['values']['field_act_compliance_officers'][LANGUAGE_NONE][0]['tid']: "1";
+        if($compliance_officer == '')
+            $compliance_officer = "1";
+        // save activity summary
+        if($activity_date != '' && $activity_type != ''){
+          $activity_node = new stdClass();
+          $activity_node->title = $activity_date . "-" . $activity_type;
+          $activity_node->type = 'activity';
+          $activity_node->created = time();
+          $activity_node->changed= time();
+          $activity_node->status = 1;
+          $activity_node->tnid = 0;
+          $activity_node->translate = 0;
+          $activity_node->sticky = 0;
+          $activity_node->uid = 1;
+          $activity_node->language = 'und';
+          $activity_node->timestamp = time();
+          $activity_node->promote = 0; //(1 or 0): promoted to front page
+          $activity_node->comment = 0; // 0 = comments disabled, 1 = read only, 2 = read/write
+
+          $activity_node->field_activity_date[LANGUAGE_NONE][0]['value'] = $activity_date;
+          $activity_node->field_activity_notes[LANGUAGE_NONE][0]['value'] = $activity_notes;
+          $activity_node->field_activity_type[LANGUAGE_NONE][0]['value'] = $activity_type;
+          $activity_node->field_time_spent[LANGUAGE_NONE][0]['value'] = $time_spent;
+          
+          if($activity_description == 'other')
+            $activity_node->field_activity_description[LANGUAGE_NONE][0]['value'] = $activity_other_description;
+          else
+            $activity_node->field_activity_description[LANGUAGE_NONE][0]['value'] = $activity_description;
+          
+          $activity_node->field_act_compliance_officers[LANGUAGE_NONE][0]['tid'] = $compliance_officer;
+
+          $activity_node = node_submit($activity_node);
+          node_save($activity_node);
+          $node->field_activity_summary[$node->language][] = array(
+            'target_id' => $activity_node->nid,
+            'target_type' => 'node',
+          );
+          // clear activity fields
+          unset($node->field_act_compliance_officers[LANGUAGE_NONE][0]);
+          $node->field_activity_date[LANGUAGE_NONE][0]['value'] = date('m/d/Y');
+          $node->field_activity_type[LANGUAGE_NONE][0]['value'] = '_none';
+          unset($node->field_other_activity_type[LANGUAGE_NONE][0]);
+          unset($node->field_activity_description[LANGUAGE_NONE][0]);
+          unset($node->field_activity_notes[LANGUAGE_NONE][0]);
+          $node->field_time_spent[LANGUAGE_NONE][0]['value'] = '0';
+          unset($node->field_hourly_rate[LANGUAGE_NONE][0]);
+          unset($node->field_activity_cost[LANGUAGE_NONE][0]);
+          unset($node->field_notification_email_in[LANGUAGE_NONE][0]);
+          unset($node->field_notification_message[LANGUAGE_NONE][0]);
+          unset($node->field_cc_additional_staff[LANGUAGE_NONE][0]);
+
+          node_submit($node);
+          node_save($node);
+
+            // create notification reminder
+          if($reminder_days > 0){
+              $message = (isset($form_state['values']['field_notification_message'][LANGUAGE_NONE]) ) ? $form_state['values']['field_notification_message'][LANGUAGE_NONE][0]['value']: "";
+              $cclist = (isset($form_state['values']['field_cc_additional_staff'][LANGUAGE_NONE]) ) ? $form_state['values']['field_cc_additional_staff'][LANGUAGE_NONE][0]['value']: "";
+
+              // REST Server URL
+              $request_url = $base_url . '/api/list/reminder';
+
+              // User data
+              $activity_data = array(
+                'remind_days' => $reminder_days,
+                'message' => $message,
+                'cclist' => $cclist,
+                'description' => $activity_description,
+                'activityid' => $activity_node->nid
+              );
+              $activity_data = http_build_query($activity_data);
+              $csrf_token = ccsf_ws_get_csrf_header();
+
+              // cURL
+              $curl = curl_init($request_url);
+              curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json', $csrf_token)); // Accept JSON response
+              curl_setopt($curl, CURLOPT_POST, 1); // Do a regular HTTP POST
+              curl_setopt($curl, CURLOPT_POSTFIELDS, $activity_data); // Set POST data
+              curl_setopt($curl, CURLOPT_HEADER, FALSE);  // Ask to not return Header
+              curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+              curl_setopt($curl, CURLOPT_FAILONERROR, TRUE);
+
+              $response = curl_exec($curl);
+              if( ! $response)
+                error_log("Failed to create activity reminder node id: $node->nid activityid: $activity_node->nid response:". $response);
+              $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+          }
+        }
+      }
+      catch(Exception $e){
+        error_log("Failed create activity summary".$e->getMessage().EOL);
+        //die;
+      }
+  }
+}
+/**
+ *  get CSRF token for web services POST
+ */
+function ccsf_ws_get_csrf_header() {
+  global $base_url;
+  $curl_get = curl_init();
+  curl_setopt_array($curl_get, array(
+    CURLOPT_RETURNTRANSFER => 1,
+    CURLOPT_URL => $base_url . "/services/session/token",
+  ));
+  $csrf_token = curl_exec($curl_get);
+  curl_close($curl_get);
+
+  return 'X-CSRF-Token: ' . $csrf_token;
+}
+
+/**
+ *  add username to list of compliance officer vocabulary.
+ */
+function ccsf_ws_update_user_terms($form, &$form_state){
+  $term = new stdClass();
+  $term->name = $form_state['values']['name'];
+  $term->vid = 2;
+  taxonomy_term_save($term);
+  //error_log(print_r($term,1));
+}
+/**
+ * set default values for dashboard forena parameters
+ */
+function ccsf_ws_forena_parameters_alter($report_name, &$parms) {
+  global $user;
+  $rid = in_array('5',array_keys($user->roles)) ? 5 : 10;
+  $parms['uid'] = $user->uid;
+  $parms['rid'] = $rid;
+}
+/**
+ * get compliance user from taxonomy with matching name
+ */
+function ccsf_ws_get_comp_officer_name($name){
+  $select = "Select T.tid from taxonomy_term_data T where T.name = '$name' ";
+  $tid = db_query($select)->fetchField();
+  return $tid;
+}
+
+
+/**
+ * Assign node to selected user
+ */
+function ccsf_ws_node_presave($node){
+  if(isset($node->field_compliance_officer[LANGUAGE_NONE][0]['tid'])){
+    $uid = db_query('Select U.uid FROM users U JOIN taxonomy_term_data T ON U.name = T.name WHERE T.tid = :tid AND U.status = 1', array(':tid' => $node->field_compliance_officer[LANGUAGE_NONE][0]['tid']))->fetchField();
+    if(!empty($uid) && $node->uid != $uid)
+      $node->uid = $uid;
+  } 
+}
+
+/**
+* Perform alterations before the reference form is included in the IEF widget.
+ *
+ * The reference form is used to add existing entities through an autocomplete
+* field
+*
+ * @param $reference_form
+*   Nested array of form elements that comprise the reference form.
+ * @param $form_state
+*   The form state of the parent form.
+ */
+function ccsf_ws_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+  /*$entity_form['actions']['#attached']['js'] = array(
+    drupal_get_path('module', 'ccsf_ws') . '/js/ccsf_ws.js',
+  );*/
+  //dpm($entity_form);
+
+}
+
+
+function ccsf_ws_inline_entity_form_table_fields_alter(&$fields, $context) {
+  //Determine the bundle and entity type from $context
+  //get rid of the id field
+  unset($fields['title']);
+  unset($fields['status']);
+
+  switch($context['field_name']){
+    case "field_activity_summary":
+      $fields['field_activity_date'] = array(
+        'type' => 'field',
+        'label' => t('Activity Date'),
+        'weight' => 11
+      );
+      $fields['field_activity_description'] = array(
+        'type' => 'field',
+        'label' => t('Description'),
+        'weight' => 12
+      );
+      $fields['field_time_spent'] = array(
+        'type' => 'field',
+        'label' => t('Time Spent'),
+        'weight' => 13
+      );
+     $fields['field_act_compliance_officers'] = array(
+        'type' => 'field',
+        'label' => t('Compliance Officer'),
+        'weight' => 14,
+      );
+      break;
+      $fields['field_activity_notes'] = array(
+        'type' => 'field',
+        'label' => t('Notes'),
+        'weight' => 16,
+      );
+      break;
+    case "field_additional_business":
+      $fields['field_additional_bn'] = array(
+        'type' => 'field',
+        'label' => t('Business Name'),
+        'weight' => 11
+      );
+      $fields['field_additional_bl'] = array(
+        'type' => 'field',
+        'label' => t('Business Location'),
+        'weight' => 12
+      );
+      $fields['field_business_phone'] = array(
+        'type' => 'field',
+        'label' => t('Phone #'),
+        'weight' => 13
+      );
+      break;
+    case "field_additional_owners":
+      $fields['field_business_contact_name'] = array(
+        'type' => 'field',
+        'label' => t('Business Contact'),
+        'weight' => 2
+      );
+      $fields['field_additional_bt'] = array(
+        'type' => 'field',
+        'label' => t('Title'),
+        'weight' => 3
+      );
+
+      $fields['field_business_phone'] = array(
+        'type' => 'field',
+        'label' => t('Phone #'),
+        'weight' => 4
+      );
+      $fields['field_primary_business_contact_e'] = array(
+        'type' => 'field',
+        'label' => t('Email'),
+        'weight' => 5
+      );
+      break;
+    case "field_additional_claimants":
+      $fields['field_first_name'] = array(
+        'type' => 'field',
+        'label' => t('First Name'),
+        'weight' => 6
+      );
+      $fields['field_last_name'] = array(
+        'type' => 'field',
+        'label' => t('Last Name'),
+        'weight' => 6
+      );
+      $fields['field_additional_c_phone'] = array(
+        'type' => 'field',
+        'label' => t('Phone'),
+        'weight' => 7
+      );
+      $fields['field_primary_claimant_email'] = array(
+        'type' => 'field',
+        'label' => t('Email'),
+        'weight' => 8
+      );
+      $fields['field_add_business_location'] = array(
+        'type' => 'field',
+        'label' => t('Business Location'),
+        'weight' => 9
+      );
+      $fields['field_notes'] = array(
+        'type' => 'field',
+        'label' => t('Notes'),
+        'weight' => 10
+      );
+      break;
+  }
+}

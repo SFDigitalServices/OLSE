@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Installation code for onedrive.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function onedrive_uninstall() {
+  variable_del('onedrive_clientid');
+  variable_del('onedrive_secret');
+  variable_del('onedrive_password');
+  variable_del('onedrive_title_text');
+  variable_del('onedrive_og_cck_field_gdrive_client_id');
+  variable_del('onedrive_og_cck_field_gdrive_client_secret');
+  variable_del('onedrive_default_domain');
+}

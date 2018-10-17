@@ -1,0 +1,127 @@
+/**
+ * @file
+ * Provides JavaScript for Inline Entity Form.
+ */
+
+(function ($) {
+
+/**
+ * Allows submit buttons in entity forms to trigger uploads by undoing
+ * work done by Drupal.behaviors.fileButtons.
+ */
+Drupal.behaviors.inlineEntityForm = {
+  attach: function (context) {
+    if (Drupal.file) {
+      $('input.ief-entity-submit', context).unbind('mousedown', Drupal.file.disableFields);
+    }
+    if($("#attachment-delta-0").length < 1){
+          $(".field-name-field-attachments").each( function(delta){
+              $(this).prepend('<span class="show-attachments" id="attachment-delta-'+ delta +'"> Show/Collapse Attachments</span>');
+              var eleDelta = 'attachment-delta-'+ delta;
+              $("#" + eleDelta).click( function(){
+                  //$(this).html("Collapse");
+                  $(this).siblings('.field-items').children().toggle();
+              });
+          });
+        //format activity date
+        $(".field-name-field-activity-date .field-item .date-display-single").each( function(){
+            var activitydate = new Date($(this).attr('content'));
+            $(this).html(activitydate.toLocaleDateString());
+        });
+    }
+    //$(".field-name-field-additional-bn div div input[type=text]").each( function(index){
+      // works in Edit mode
+      $("#ief-entity-table-edit-field-additional-business-und-entities .ief-row-form > td > div > div > input[type=text]").each( function(index){
+        $("#" +$(this).attr('id')).autocomplete(
+            {
+                source: function( request, response ) {
+                    openOverlayInline($(that).parent());
+                    $.ajax({
+                        url: "https://data.sfgov.org/resource/g8m3-pdis.json",
+                        dataType: "json",
+                        data: {
+                            $q: request.term.toLowerCase()
+                        },
+                        success: function( data ) {
+                            var i = 0;
+                            var datasource = new Object();
+                            for(index=0;index<data.length;index++){
+                                var dbaname = data[index]['dba_name'].toLowerCase();
+                                if(dbaname.indexOf(request.term.toLowerCase(), 0) === 0){
+                                    data[index].value = data[index]['dba_name'] + " : " + data[index]['full_business_address'];
+                                    datasource[i] = data[index];
+                                    i++;
+                                }
+                            }
+                            response( datasource );
+                        }
+                    });
+                },
+                minLength: 3,
+                select: function( event, ui ) {
+                    $(".field-name-field-additional-bl .form-textarea-wrapper textarea").val(ui.item.full_business_address);
+                },
+                open: function() {
+                    closeOverlayInline();
+                    $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                },
+                close: function() {
+                    closeOverlayInline();
+                    $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                }
+
+            });
+    });
+
+      // works in Create new mode
+      $(".form-item-field-additional-business-und-form-title input[type=text]").each( function(index){
+          var that = this;
+          $("#" +$(this).attr('id')).autocomplete(
+              {
+                  source: function( request, response ) {
+                      openOverlayInline($(that).parent());
+                      $.ajax({
+                          url: "https://data.sfgov.org/resource/g8m3-pdis.json",
+                          dataType: "json",
+                          data: {
+                              $q: request.term.toLowerCase()
+                          },
+                          success: function( data ) {
+                              var i = 0;
+                              var datasource = new Object();
+                              for(index=0;index<data.length;index++){
+                                  var dbaname = data[index]['dba_name'].toLowerCase();
+                                  if(dbaname.indexOf(request.term.toLowerCase(), 0) === 0){
+                                      data[index].value = data[index]['dba_name'] + " : " + data[index]['full_business_address'];
+                                      datasource[i] = data[index];
+                                      i++;
+                                  }
+                              }
+                              response( datasource );
+                          }
+                      });
+                  },
+                  minLength: 3,
+                  select: function( event, ui ) {
+                      $(".field-name-field-additional-bl .form-textarea-wrapper textarea").val(ui.item.full_business_address);
+                  },
+                  open: function() {
+                      closeOverlayInline();
+                      $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                  },
+                  close: function() {
+                      closeOverlayInline();
+                      $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                  }
+
+              });
+      });
+  },
+  detach: function (context) {
+    if (Drupal.file) {
+      $('input.form-submit', context).bind('mousedown', Drupal.file.disableFields);
+    }
+  }
+};
+
+})(jQuery);

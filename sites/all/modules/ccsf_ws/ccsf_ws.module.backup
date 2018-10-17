@@ -1,0 +1,1131 @@
+<?php
+
+// ccsf_ws.module
+/**
+ * Implementation of hook_menu.
+ *
+ * @return array
+ */
+function ccsf_ws_menu() {
+    $items = array();
+    // set up ajax call for word docs
+    $items['docs/%'] = array(
+        'page callback' => '_create_docs', // Render HTML
+        'page arguments' => array(1),
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}
+
+/** Enable menu link alter
+ * @param $item => menu item
+ */
+function ccsf_ws_menu_link_alter(&$item)
+{
+    $item['options']['alter'] = TRUE;
+}
+
+/** Implementation of menu link alter
+ * @param $item => menu item
+ * @param $map
+ */
+function ccsf_ws_translated_menu_link_alter(&$item, $map)
+{
+    if (!empty($item['access'])) {
+
+        if(
+            ( $item['link_title']=="MyLinkToHide1" && !user_access("access link 1") ) ||
+            ( $item['link_title']=="MyLinkToHide2" && !user_access("access link 2") )
+
+        )
+        {
+            $item['access'] = FALSE;
+        }
+
+    }
+}
+/**
+ * Implementation of hook_enable().
+ *
+ * CCSF - add additional fields to user profile
+ */
+function ccsf_ws_enable() {
+    // Check if user first name field is not already created.
+    if (!field_info_field('field_user_firstname')) {
+        $field = array(
+            'field_name' => 'field_user_firstname',
+            'type' => 'text',
+        );
+        field_create_field($field);
+
+        // Create the instance on the bundle.
+        $instance = array(
+            'field_name' => 'field_user_firstname',
+            'entity_type' => 'user',
+            'label' => 'First Name',
+            'bundle' => 'user',
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => TRUE,
+            'settings' => array(
+                // Here you inform either or not you want this field showing up on the registration form.
+                'user_register_form' => 1,
+            ),
+            'widget' => array(
+                'type' => 'textfield',
+                'weight' => '11',
+            ),
+        );
+        field_create_instance($instance);
+    }
+    // Check if user last name field is not already created.
+    if (!field_info_field('field_user_lastname')) {
+        $field = array(
+            'field_name' => 'field_user_lastname',
+            'type' => 'text',
+        );
+        field_create_field($field);
+
+        // Create the instance on the bundle.
+        $instance = array(
+            'field_name' => 'field_user_lastname',
+            'entity_type' => 'user',
+            'label' => 'Last Name',
+            'bundle' => 'user',
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => TRUE,
+            'settings' => array(
+                // Here you inform either or not you want this field showing up on the registration form.
+                'user_register_form' => 1,
+            ),
+            'widget' => array(
+                'type' => 'textfield',
+                'weight' => '12',
+            ),
+        );
+        field_create_instance($instance);
+    }
+
+    // Check if user phone field is not already created.
+    if (!field_info_field('field_user_phonenumber')) {
+        $field = array(
+            'field_name' => 'field_user_phonenumber',
+            'type' => 'text',
+        );
+        field_create_field($field);
+
+        // Create the instance on the bundle.
+        $instance = array(
+            'field_name' => 'field_user_phonenumber',
+            'entity_type' => 'user',
+            'label' => 'Phone Number',
+            'bundle' => 'user',
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => FALSE,
+            'settings' => array(
+                // Here you inform either or not you want this field showing up on the registration form.
+                'user_register_form' => 1,
+            ),
+            'widget' => array(
+                'type' => 'textfield',
+                'weight' => '13',
+            ),
+        );
+        field_create_instance($instance);
+    }
+
+    // Check if user initials field is not already created.
+    if (!field_info_field('field_user_initials')) {
+        $field = array(
+            'field_name' => 'field_user_initials',
+            'type' => 'text',
+        );
+        field_create_field($field);
+
+        // Create the instance on the bundle.
+        $instance = array(
+            'field_name' => 'field_user_initials',
+            'entity_type' => 'user',
+            'label' => 'Initials',
+            'bundle' => 'user',
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => FALSE,
+            'settings' => array(
+                // Here you inform either or not you want this field showing up on the registration form.
+                'user_register_form' => 1,
+            ),
+            'widget' => array(
+                'type' => 'textfield',
+                'weight' => '14',
+            ),
+        );
+        field_create_instance($instance);
+    }
+}
+
+/**
+ * Implementation of hook_disable().
+ *
+ * CCSF - remove additional fields to user profile
+ *  ***** USER WITH EXTREME CAUTION, THIS WILL DELETE ALL DATA FROM THE FIELDS.
+ */
+/*function ccsf_ws_disable(){
+    // Create the instance on the bundle.
+    $instance = array(
+        'field_name' => 'field_user_firstname',
+        'entity_type' => 'user',
+        'label' => 'First Name',
+        'bundle' => 'user',
+        // If you don't set the "required" property then the field wont be required by default.
+        'required' => TRUE,
+        'settings' => array(
+            // Here you inform either or not you want this field showing up on the registration form.
+            'user_register_form' => 1,
+        ),
+        'widget' => array(
+            'type' => 'textfield',
+            'weight' => '11',
+        ),
+    );
+    field_delete_instance($instance);
+
+    $instance = array(
+        'field_name' => 'field_user_lastname',
+        'entity_type' => 'user',
+        'label' => 'Last Name',
+        'bundle' => 'user',
+        // If you don't set the "required" property then the field wont be required by default.
+        'required' => TRUE,
+        'settings' => array(
+            // Here you inform either or not you want this field showing up on the registration form.
+            'user_register_form' => 1,
+        ),
+        'widget' => array(
+            'type' => 'textfield',
+            'weight' => '12',
+        ),
+    );
+    field_delete_instance($instance);
+
+    $instance = array(
+        'field_name' => 'field_user_phonenumber',
+        'entity_type' => 'user',
+        'label' => 'Phone Number',
+        'bundle' => 'user',
+        // If you don't set the "required" property then the field wont be required by default.
+        'required' => FALSE,
+        'settings' => array(
+            // Here you inform either or not you want this field showing up on the registration form.
+            'user_register_form' => 1,
+        ),
+        'widget' => array(
+            'type' => 'textfield',
+            'weight' => '13',
+        ),
+    );
+    field_delete_instance($instance);
+
+    $instance = array(
+        'field_name' => 'field_user_phone',
+        'entity_type' => 'user',
+        'label' => 'Phone Number',
+        'bundle' => 'user',
+        // If you don't set the "required" property then the field wont be required by default.
+        'required' => FALSE,
+        'settings' => array(
+            // Here you inform either or not you want this field showing up on the registration form.
+            'user_register_form' => 1,
+        ),
+        'widget' => array(
+            'type' => 'textfield',
+            'weight' => '13',
+        ),
+    );
+    field_delete_instance($instance);
+
+    $instance = array(
+        'field_name' => 'field_user_initials',
+        'entity_type' => 'user',
+        'label' => 'Initials',
+        'bundle' => 'user',
+        // If you don't set the "required" property then the field wont be required by default.
+        'required' => FALSE,
+        'settings' => array(
+            // Here you inform either or not you want this field showing up on the registration form.
+            'user_register_form' => 1,
+        ),
+        'widget' => array(
+            'type' => 'textfield',
+            'weight' => '14',
+        ),
+    );
+    field_delete_instance($instance);
+}
+*/
+//<editor-fold desc="functions to generating docs">
+
+/**
+ * Generate documents
+ * @param $doc_type
+ */
+//function _create_docs ($doc_type, $title, $parentId) {
+function _create_docs($node, $activity_node){
+    global $user;
+    require_once 'PHPWord/src/PhpWord/Autoloader.php';
+    \PhpOffice\PhpWord\Autoloader::register();
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+
+    $filename = "";
+    $dir = file_stream_wrapper_get_instance_by_uri('public://')->realpath();
+
+    $nid = $node->nid;
+    $doc_type = $activity_node->field_activity_description[LANGUAGE_NONE][0]['value'];
+
+    switch ($doc_type) {
+        case "advisory" : $filename = "Advisory_Letter.docx";
+            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($dir."/DocumentTemplates/".$filename);
+            _generate_advisory_letter($templateProcessor,$nid);
+            break;
+        case "advisory_letter" : $filename = "HCSO_Advisory_Letter.docx";
+            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($dir."/DocumentTemplates/".$filename);
+            _generate_hcso_advisory_letter($templateProcessor,$nid);
+            break;
+        case "d_violation" : $filename = "HCSO_DOV_Letter.docx";
+            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($dir."/DocumentTemplates/".$filename);
+            _generate_hcso_dov_letter($templateProcessor,$nid);
+            break;
+        case "d_violation" : $filename = "HCSO_NOPV_Questions.docx";
+            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($dir."/DocumentTemplates/".$filename);
+            _generate_dov_q_letter($templateProcessor,$nid);
+            break;
+        default: return false;  break;
+    }
+
+    if($filename != ""){
+        // Store the file in sites/default/files
+        $original_file_name = $filename;
+        $file_name = $dir."/DocumentTemplates/".$user->name."_".$filename;
+
+        $templateProcessor->saveAs($file_name);
+        $tempname = explode(".", $filename);
+        $filename = $tempname[0] . "_tmp_".$nid . ".". $tempname[1];
+
+        // create file on google drive, save record in drupal, how?
+        if (module_exists('droogle') && function_exists('droogle_gdrive_connect')) {
+            $return_result = droogle_gdrive_connect('droogle_gdrive_create_file');
+            $client = $return_result['client'];
+            $service = $return_result['service'];
+            if (isset($return_result['authUrl'])) {
+                $authUrl = $return_result['authUrl'];
+            }
+            /************************************************
+            If we're signed in then lets try to upload our
+            file.
+             ************************************************/
+            $refresh_token = variable_get('droogle_refresh_token', '');
+            if(!empty($refresh_token) && $client->isAccessTokenExpired()) {
+                $client->refreshToken($refresh_token);
+            }
+            $description = $doc_type . " for " . $node->title;
+
+            // create folder for this case, need to check folder exists or not.
+            $file = insertFile($service, $description, $node->field_google_drive_folderhidden[LANGUAGE_NONE][0]['value'], $original_file_name, $file_name);
+
+            // create database record for this generated document, file_managed, file_usage;
+            if($file != null){
+                $file = array(
+                    'uid' => $user->uid,
+                    'status' => 1,
+                    'filename' => trim($original_file_name),
+                    'uri' => $file->id,
+                    'filemime' => $file->mimeType,
+                    'filesize' => filesize($file_name),
+                    'source' => "custom",
+                    'timestamp' => REQUEST_TIME,
+                    'destination' => ""
+                );
+                drupal_write_record('file_managed', $file);
+
+                $file_usage = array(
+                  'fid' => $file['fid'],
+                  'module' => 'file',
+                    'type' => 'node',
+                    'id' => $activity_node->nid,
+                    'count' => 1
+                );
+
+                drupal_write_record('file_usage', $file_usage);
+
+                $field_attachments = array(
+                    'entity_type' => 'node',
+                    'bundle' =>  'activity',
+                    'entity_id' => $activity_node->nid,
+                    'delta' => 0,
+                    'field_attachments_fid' => $file['fid'],
+                    'field_attachments_display' => 1,
+                    'language' => 'und',
+                    'revisionid' => $activity_node->nid
+                );
+                drupal_write_record('field_data_field_attachments', $field_attachments);
+                // create empty file
+                shell_exec('touch '. $dir . '/' . $file->id );
+            }
+            return $file->id;
+        }
+    }
+    return "";
+}
+
+/**
+ *  Generate letters
+ *
+ */
+function _generate_audit_letter(&$templateProcessor,$nid){
+    global $user;
+    $format = "F d, Y";
+    $node = node_load($nid);
+
+    $TodayDate = date($format);
+    $PRIMARYBUSINESSCONTACT =  isset($node->field_primary_business_contact['und']) ? $node->field_primary_business_contact['und'][0]['value'] : "";
+    $businessname = isset($node->field_business_name['und']) ? $node->field_business_name['und'][0]['value'] : "";
+    $BUSINESSNAME = "";
+    if($businessname != ''){
+        $b = explode(":", $businessname);
+        $BUSINESSNAME = $b[0];
+    }
+
+    $BUSINESSADDRESS =  getBusinessAddress(isset($node->field_business_address['und']) ? $node->field_business_address['und'][0]['value'] : "");
+    $lastname = explode(" ", $PRIMARYBUSINESSCONTACT);
+    $PRIMARYBUSINESSCONTACT_LASTNAME = $lastname[count($lastname) - 1];
+    $USERNAME = $user->name;
+
+    $templateProcessor->setValue('TODAY', htmlspecialchars($TodayDate));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT', htmlspecialchars($PRIMARYBUSINESSCONTACT));
+    $templateProcessor->setValue('BUSINESSNAME', htmlspecialchars($BUSINESSNAME));
+    $templateProcessor->setValue('BUSINESSADDRESS', ($BUSINESSADDRESS));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT_LASTNAME', htmlspecialchars($PRIMARYBUSINESSCONTACT_LASTNAME));
+    $templateProcessor->setValue('USERNAME', htmlspecialchars($USERNAME));
+}
+function _generate_dov_letter(&$templateProcessor,$nid){
+    global $user;
+    $format = "F d, Y";
+    $node = node_load($nid);
+
+    $TodayDate = date($format);
+    $TodayDate30days = new DateTime();
+    $TodayDate30days->add(new DateInterval('P60D'));
+    $TodayDate30days1 = $TodayDate30days->format($format);
+
+    $primarybusinesscontact =  isset($node->field_primary_business_contact['und']) ? $node->field_primary_business_contact['und'][0]['value'] : "";
+    $primarybusinesscontacttitle =  isset($node->field_primary_business_contact_t['und']) ? $node->field_primary_business_contact_t['und'][0]['value'] : "";
+    $businessname_value = isset($node->field_business_name['und']) ? $node->field_business_name['und'][0]['value'] : "";
+    $PrimaryBusinessContactemail =  isset($node->field_primary_business_contact_e['und']) ? $node->field_primary_business_contact_e['und'][0]['value'] : "";
+    $businessname = "";
+    if($businessname_value != ''){
+        $b = explode(":", $businessname_value);
+        $businessname = $b[0];
+    }
+    $DBA = isset($node->field_business_dba['und']) ? $node->field_business_dba['und'][0]['value'] : "";
+    $businessaddress =  getBusinessAddress(isset($node->field_business_address['und']) ? $node->field_business_address['und'][0]['value'] : "");
+
+    $userinfo = getUserInfo($user->uid);
+
+    $username = $userinfo["firstname"] . " " . $userinfo["lastname"];
+    $UserNamePhone = $userinfo["phonenumber"];
+
+    $templateProcessor->setValue('TodayDate', htmlspecialchars($TodayDate));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT', htmlspecialchars($primarybusinesscontact));
+    $templateProcessor->setValue('BusinessName', htmlspecialchars($businessname));
+    $templateProcessor->setValue('Address', ($businessaddress));
+    $templateProcessor->setValue('PrimaryBusinessContact', htmlspecialchars($primarybusinesscontact));
+    $templateProcessor->setValue('PrimaryBusinessContactTitle', htmlspecialchars($primarybusinesscontacttitle));
+    $templateProcessor->setValue('PrimaryBusinessContactemail', htmlspecialchars($PrimaryBusinessContactemail));
+    $templateProcessor->setValue('CaseNumber#', htmlspecialchars($node->title));
+    $templateProcessor->setValue('USERNAME', htmlspecialchars($username));
+    $templateProcessor->setValue('DBA', htmlspecialchars($DBA));
+    $templateProcessor->setValue('TodayDate30days', htmlspecialchars($TodayDate30days1));
+    $templateProcessor->setValue('UserNamePhone', ($UserNamePhone));
+    $templateProcessor->setValue('UserNameEmail', ($user->mail));
+}
+function _generate_advisory_letter(&$templateProcessor,$nid){
+    global $user;
+    $format = "F d, Y";
+    $node = node_load($nid);
+
+    $TodayDate = date($format);
+    $PRIMARYBUSINESSCONTACT =  isset($node->field_primary_business_contact['und']) ? $node->field_primary_business_contact['und'][0]['value'] : "";
+    $businessname = isset($node->field_business_name['und']) ? $node->field_business_name['und'][0]['value'] : "";
+    $BUSINESSNAME = "";
+    if($businessname != ''){
+        $b = explode(":", $businessname);
+        $BUSINESSNAME = $b[0];
+    }
+
+    $BUSINESSADDRESS =  getBusinessAddress(isset($node->field_business_address['und']) ? $node->field_business_address['und'][0]['value'] : "");
+    $lastname = explode(" ", $PRIMARYBUSINESSCONTACT);
+    $PRIMARYBUSINESSCONTACT_LASTNAME = $lastname[count($lastname) - 1];
+    $USERNAME = $user->name;
+
+    $templateProcessor->setValue('TODAY', htmlspecialchars($TodayDate));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT', htmlspecialchars($PRIMARYBUSINESSCONTACT));
+    $templateProcessor->setValue('BUSINESSNAME', htmlspecialchars($BUSINESSNAME));
+    $templateProcessor->setValue('BUSINESSADDRESS', ($BUSINESSADDRESS));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT_LASTNAME', htmlspecialchars($PRIMARYBUSINESSCONTACT_LASTNAME));
+    $templateProcessor->setValue('USERNAME', htmlspecialchars($USERNAME));
+}
+function _generate_hcso_dov_letter(&$templateProcessor,$nid){
+    global $user;
+    $format = "F d, Y";
+    $node = node_load($nid);
+
+    $TodayDate = date($format);
+    $PRIMARYBUSINESSCONTACT =  isset($node->field_primary_business_contact['und']) ? $node->field_primary_business_contact['und'][0]['value'] : "";
+    $businessname = isset($node->field_business_name['und']) ? $node->field_business_name['und'][0]['value'] : "";
+    $BUSINESSNAME = "";
+    if($businessname != ''){
+        $b = explode(":", $businessname);
+        $BUSINESSNAME = $b[0];
+    }
+
+    $BUSINESSADDRESS =  getBusinessAddress(isset($node->field_business_address['und']) ? $node->field_business_address['und'][0]['value'] : "");
+    $lastname = explode(" ", $PRIMARYBUSINESSCONTACT);
+    $PRIMARYBUSINESSCONTACT_LASTNAME = $lastname[count($lastname) - 1];
+    $USERNAME = $user->name;
+
+    $templateProcessor->setValue('TODAY', htmlspecialchars($TodayDate));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT', htmlspecialchars($PRIMARYBUSINESSCONTACT));
+    $templateProcessor->setValue('BUSINESSNAME', htmlspecialchars($BUSINESSNAME));
+    $templateProcessor->setValue('BUSINESSADDRESS', ($BUSINESSADDRESS));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT_LASTNAME', htmlspecialchars($PRIMARYBUSINESSCONTACT_LASTNAME));
+    $templateProcessor->setValue('USERNAME', htmlspecialchars($USERNAME));
+}
+function _generate_hcso_advisory_letter(&$templateProcessor,$nid){
+    global $user;
+    $format = "F d, Y";
+    $node = node_load($nid);
+
+    $TodayDate = date($format);
+    $PRIMARYBUSINESSCONTACT =  isset($node->field_primary_business_contact['und']) ? $node->field_primary_business_contact['und'][0]['value'] : "";
+    $businessname = isset($node->field_business_name['und']) ? $node->field_business_name['und'][0]['value'] : "";
+    $BUSINESSNAME = "";
+    if($businessname != ''){
+        $b = explode(":", $businessname);
+        $BUSINESSNAME = $b[0];
+    }
+
+    $BUSINESSADDRESS =  getBusinessAddress(isset($node->field_business_address['und']) ? $node->field_business_address['und'][0]['value'] : "");
+    $lastname = explode(" ", $PRIMARYBUSINESSCONTACT);
+    $PRIMARYBUSINESSCONTACT_LASTNAME = $lastname[count($lastname) - 1];
+    $USERNAME = $user->name;
+
+    $templateProcessor->setValue('TODAY', htmlspecialchars($TodayDate));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT', htmlspecialchars($PRIMARYBUSINESSCONTACT));
+    $templateProcessor->setValue('BUSINESSNAME', htmlspecialchars($BUSINESSNAME));
+    $templateProcessor->setValue('BUSINESSADDRESS', ($BUSINESSADDRESS));
+    $templateProcessor->setValue('PRIMARYBUSINESSCONTACT_LASTNAME', htmlspecialchars($PRIMARYBUSINESSCONTACT_LASTNAME));
+    $templateProcessor->setValue('USERNAME', htmlspecialchars($USERNAME));
+}
+//</editor-fold>
+
+//<editor-fold desc="helper functions to generating docs">
+function getBusinessAddress($tid){
+    if($tid == '') return;
+
+    $select = " select B.field_address_value as address1, C.field_address2_value as address2, D.field_city_value as city, E.field_state_value as state, F.field_zip_code_value as zip
+ from field_data_field_business_address A
+ join field_data_field_address B on B.entity_id = A.field_business_address_value
+ left join field_data_field_address2 C on C.entity_id = A.field_business_address_value
+ left join field_data_field_city D on D.entity_id = A.field_business_address_value
+ left join field_data_field_state E on E.entity_id = A.field_business_address_value
+ left join field_data_field_zip_code F on F.entity_id = A.field_business_address_value
+ where A.field_business_address_value = $tid;";
+
+    $select = str_replace("\n", '', $select);
+
+    $result = db_query($select)->fetchAll();
+
+    $address = "";
+    $address1 = "";
+    foreach ($result as $record) {
+        $address = isset($record->address1) ? htmlspecialchars($record->address1) : "";
+        $address .= (! isset($record->address2) ) ? "" : "<w:br/>".htmlspecialchars($record->address2);
+        $address = $address . "<w:br/>$record->city, $record->state " . $record->zip;
+    }
+
+    return ($address1 == "") ? $address : $address1;
+}
+
+function getUserInfo($uid){
+    if($uid == '') return;
+
+    $select = " SELECT A.field_user_firstname_value as firstname, B.field_user_lastname_value as lastname, C.field_user_phonenumber_value as phonenumber
+     FROM field_data_field_user_firstname A
+     LEFT JOIN field_data_field_user_lastname B ON A.entity_id = B.entity_id
+     LEFT JOIN field_data_field_user_phonenumber C ON A.entity_id = C.entity_id
+     WHERE A.entity_id = $uid";
+
+    $result = db_query($select)->fetchAll();
+    return (array)$result[0];
+
+}
+//</editor-fold>
+/**
+ * Implements hook_init().
+ */
+function ccsf_ws_init() {
+  //drupal_add_css(drupal_get_path('module', 'ccsf_ws') . '/css/notes.css');
+  //drupal_add_js(drupal_get_path('module', 'ccsf_ws') . '/js/notes.js');
+}
+/**
+ * Implements hook_services_request_postprocess_alter
+ */
+function ccsf_ws_services_request_postprocess_alter($controller, $args, &$result) {
+    if ($controller['callback'] === '_system_resource_connect') {
+        $result->user->picture = (!empty($result->user->picture)) ? $result->user->picture : 'http://srv.local/sites/default/files/220px-Nyan_cat_250px_frame.PNG' ;
+    }
+}
+
+/**
+ * Implements hook_services_resources
+ */
+function ccsf_ws_services_resources() {
+    return array(
+        'colist' => array(
+          'index' => array(
+                'help' => 'Says "List of Compliance Officers"',
+                'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+                'callback' => '_ccsf_ws_colist',
+                'access callback' => '_ccsf_ws_services_access',
+                'args' => array(
+                    array(
+                        'name' => 'rolenames',
+                        'type' => 'string',
+                        'description' => 'user roles to get',
+                        'source' => array('path' => '0'),
+                        'optional' => TRUE,
+                    ),
+                ),
+            ),
+        ),
+      'casetype' => array(
+          'retrieve' => array(
+            'help' => 'Says "Get next ID for case type"',
+            'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+            'callback' => '_ccsf_ws_get_next_id',
+            'access callback' => '_ccsf_ws_services_access',
+            'args' => array(
+              array(
+                'name' => 'casetype',
+                'type' => 'string',
+                'description' => 'case type to get',
+                'source' => array('path' => '0'),
+                'optional' => TRUE,
+              ),
+          ),
+        ),
+      ),
+      'business_address' => array(
+        'retrieve' => array(
+          'help' => 'get a business address"',
+          'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+          'callback' => '_ccsf_ws_get_business_address',
+          'access callback' => '_ccsf_ws_services_access',
+          'args' => array(
+            array(
+              'name' => 'nid',
+              'type' => 'string',
+              'description' => 'business address field collection to get',
+              'source' => array('path' => '0'),
+              'optional' => TRUE,
+            ),
+          ),
+        ),
+      ),
+      'reminder' => array(
+        'create' => array(
+          'help' => 'Says "Set up notification reminder for user"',
+          'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+          'callback' => '_setup_reminder',
+          'access arguments' => array('create'),
+          'access callback' => '_ccsf_ws_services_access',
+          'args' => array(
+            array(
+              'name' => 'data',
+              'type' => 'array',
+              'description' => 'post parameters',
+              'source' => 'data',
+              'optional' => FALSE
+            )
+          ),
+        ),
+      ),
+      'casenumber' => array(
+          'retrieve' => array(
+            'help' => 'Says "Get a list of case numbers(node title)"',
+            'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+            'callback' => '_get_case_numbers',
+            'access callback' => '_ccsf_ws_services_access',
+            'args' => array(
+              array(
+                'name' => 'input',
+                'type' => 'string',
+                'description' => 'post parameters',
+                'source' => array('path' => 0),
+                'optional' => FALSE
+              )
+            ),
+          ),
+      ),
+      'payment' => array(
+            'retrieve' => array(
+                'help' => 'Says "Create or Edit payment"',
+                'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/colist'),
+                'callback' => '_create_or_edit_payment',
+                'access callback' => '_ccsf_ws_services_access',
+                'args' => array(
+                    array(
+                        'name' => 'input',
+                        'type' => 'string',
+                        'description' => 'post parameters',
+                        'source' => array('path' => 0),
+                        'optional' => FALSE
+                    )
+                ),
+            ),
+        ),
+      'dashboard' => array(
+          'index' => array(
+              'help' => 'Shows the dashboard',
+              'file' => array('type' => 'inc', 'module' => 'ccsf_ws', 'name' => 'resources/ccsf_ws.resource'),
+              'callback' => '_ccsf_ws_dashboard',
+              'access callback' => '_ccsf_ws_services_access',
+          ),
+      ),
+    );
+}
+
+function _ccsf_ws_services_access() {
+    return TRUE;
+    // return user_is_logged_in();
+}
+
+/**
+ * Implements user registration form alter
+ */
+
+function ccsf_ws_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  // alter user registration form
+//error_log("form alter: ".$form_state['values']['field_stephidden'][LANGUAGE_NONE][0]['value']);
+  if( "user_register_form" == $form_id){
+    $form['#validate'][] = 'ccsf_ws_update_user_terms';
+  }
+  // alter intake form
+  elseif("intake_form_node_form" == $form_id){
+   // if($form_state['triggering_element']["#name"] == "activitysheet"){
+      $form['field_activity_summary'][LANGUAGE_NONE]['actions']['ief_add']['#access'] = FALSE;
+      //$form['field_act_compliance_officer'][LANGUAGE_NONE]['#default_value'] = array(ccsf_ws_get_comp_officer_name($user->name));
+      $form['field_act_compliance_officer'][LANGUAGE_NONE]['#default_value'] = array($user->uid);
+
+      //dpm($form['field_act_compliance_officers'][LANGUAGE_NONE]);
+      /*$form['field_activity_summary'][LANGUAGE_NONE]['actions']['ief_save'] = array(
+        '#type' => 'checkbox',
+        '#access' => TRUE,
+        '#value' => 0,
+        '#field_suffix' => "Save Activity",
+        '#weight' => 11,
+      );
+    */
+      $form['actions']['submit']['#submit'][] = "ccsf_ws_save_activity_summary";
+
+    //}
+  }
+}
+
+/**
+ * Intake form submit callback.
+ */
+function ccsf_ws_save_activity_summary($form,&$form_state){
+    global $base_url;
+
+    // save to Activity to Activity summary Field Collection.
+    $node = node_load($form_state['values']['nid']);
+    $node->field_document_link[LANGUAGE_NONE][0]['value'] = "";
+    if($form_state['values']['field_save_current_activity'][LANGUAGE_NONE][0]['value'] == 1){
+      // create folder on google drive
+      try{
+        if( !isset($form_state['values']['field_google_drive_folderhidden'][LANGUAGE_NONE]) || $form_state['values']['field_google_drive_folderhidden'][LANGUAGE_NONE][0]['value'] == ''){
+            $node->field_google_drive_folderhidden[LANGUAGE_NONE][0]['value'] = $form_state['values']['field_google_drive_folderhidden'][LANGUAGE_NONE][0]['value'] = getFolder($node->title);
+            variable_set("google_drive_folderid", $form_state['values']['field_google_drive_folderhidden'][LANGUAGE_NONE][0]['value']);
+        }
+        else{
+            variable_set("google_drive_folderid", $form_state['values']['field_google_drive_folderhidden'][LANGUAGE_NONE][0]['value']);
+        }
+        $activity_date = (isset($form_state['values']['field_activity_date'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_date'][LANGUAGE_NONE][0]['value']: "";
+        $activity_type = (isset($form_state['values']['field_activity_type'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_type'][LANGUAGE_NONE][0]['value']: "";
+        if($activity_type == 'none' || $activity_type == '' || $activity_date == ''){
+            node_submit($node);
+            node_save($node);
+            return;
+        }
+        $activity_notes = (isset($form_state['values']['field_activity_notes'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_notes'][LANGUAGE_NONE][0]['value']: "";
+        $activity_description = (isset($form_state['values']['field_activity_description'][LANGUAGE_NONE]) ) ? $form_state['values']['field_activity_description'][LANGUAGE_NONE][0]['value']: "";
+        $activity_other_description = (isset($form_state['values']['field_other_activity_description'][LANGUAGE_NONE]) ) ? $form_state['values']['field_other_activity_description'][LANGUAGE_NONE][0]['value']: "";
+
+        $time_spent = (isset($form_state['values']['field_time_spent'][LANGUAGE_NONE]) ) ? $form_state['values']['field_time_spent'][LANGUAGE_NONE][0]['value']: "";
+        $reminder_days = (isset($form_state['values']['field_notification_email_in'][LANGUAGE_NONE]) ) ? $form_state['values']['field_notification_email_in'][LANGUAGE_NONE][0]['value']: "";
+        $compliance_officer = ($form_state['values']['field_act_compliance_officer'][LANGUAGE_NONE][0]['target_id']);
+
+        // save activity summary
+        if($activity_date != '' && $activity_type != ''){
+          $activity_node = new stdClass();
+          $activity_node->title = $activity_date . "-" . $activity_type;
+          $activity_node->type = 'activity';
+          $activity_node->created = time();
+          $activity_node->changed= time();
+          $activity_node->status = 1;
+          $activity_node->tnid = 0;
+          $activity_node->translate = 0;
+          $activity_node->sticky = 0;
+          $activity_node->uid = 1;
+          $activity_node->language = 'und';
+          $activity_node->timestamp = time();
+          $activity_node->promote = 0; //(1 or 0): promoted to front page
+          $activity_node->comment = 0; // 0 = comments disabled, 1 = read only, 2 = read/write
+
+          $activity_node->field_activity_date[LANGUAGE_NONE][0]['value'] = $activity_date;
+          $activity_node->field_activity_notes[LANGUAGE_NONE][0]['value'] = $activity_notes;
+          $activity_node->field_activity_type[LANGUAGE_NONE][0]['value'] = $activity_type;
+          $activity_node->field_time_spent[LANGUAGE_NONE][0]['value'] = $time_spent;
+          
+          if($activity_description == 'other')
+            $activity_node->field_activity_description[LANGUAGE_NONE][0]['value'] = $activity_other_description;
+          else
+            $activity_node->field_activity_description[LANGUAGE_NONE][0]['value'] = $activity_description;
+          
+          $activity_node->field_act_compliance_officer[LANGUAGE_NONE][0]['target_id'] = $compliance_officer;
+
+          // save CO's fullname for IEF widget
+          $activity_node->field_co_full_name[LANGUAGE_NONE][0]['value'] = ccsf_ws_get_comp_officer_name($compliance_officer);
+
+          $activity_node = node_submit($activity_node);
+          node_save($activity_node);
+
+          // save activity id for inline entity
+          $activity_node->field_activity_id[LANGUAGE_NONE][0]['value'] =  $activity_node->nid;
+          node_save($activity_node);
+          $node->field_activity_summary[$node->language][] = array(
+            'target_id' => $activity_node->nid,
+            'target_type' => 'node',
+          );
+          // clear activity fields
+          unset($node->field_act_compliance_officer[LANGUAGE_NONE][0]);
+          $node->field_activity_date[LANGUAGE_NONE][0]['value'] = date('m/d/Y');
+          $node->field_activity_type[LANGUAGE_NONE][0]['value'] = '_none';
+          unset($node->field_other_activity_type[LANGUAGE_NONE][0]);
+          unset($node->field_activity_description[LANGUAGE_NONE][0]);
+          unset($node->field_activity_notes[LANGUAGE_NONE][0]);
+          $node->field_time_spent[LANGUAGE_NONE][0]['value'] = '0';
+          unset($node->field_hourly_rate[LANGUAGE_NONE][0]);
+          unset($node->field_activity_cost[LANGUAGE_NONE][0]);
+          unset($node->field_notification_email_in[LANGUAGE_NONE][0]);
+          unset($node->field_notification_message[LANGUAGE_NONE][0]);
+          unset($node->field_cc_additional_staff[LANGUAGE_NONE][0]);
+
+          // generate correspondence letter
+          if($node->field_google_drive_folderhidden[LANGUAGE_NONE][0]['value'] != '')
+             $node->field_document_link[LANGUAGE_NONE][0]['value'] = _create_docs($node, $activity_node);
+
+          node_submit($node);
+          node_save($node);
+
+          // create notification reminder
+          if($reminder_days > 0){
+              $message = (isset($form_state['values']['field_notification_message'][LANGUAGE_NONE]) ) ? $form_state['values']['field_notification_message'][LANGUAGE_NONE][0]['value']: "";
+              $cclist = (isset($form_state['values']['field_cc_additional_staff'][LANGUAGE_NONE]) ) ? $form_state['values']['field_cc_additional_staff'][LANGUAGE_NONE][0]['value']: "";
+
+              // REST Server URL
+              $request_url = $base_url . '/api/list/reminder';
+
+              // User data
+              $activity_data = array(
+                'remind_days' => $reminder_days,
+                'message' => $message,
+                'cclist' => $cclist,
+                'description' => $activity_description,
+                'activityid' => $activity_node->nid
+              );
+              $activity_data = http_build_query($activity_data);
+              $csrf_token = ccsf_ws_get_csrf_header();
+
+              // cURL
+              $curl = curl_init($request_url);
+              curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json', $csrf_token)); // Accept JSON response
+              curl_setopt($curl, CURLOPT_POST, 1); // Do a regular HTTP POST
+              curl_setopt($curl, CURLOPT_POSTFIELDS, $activity_data); // Set POST data
+              curl_setopt($curl, CURLOPT_HEADER, FALSE);  // Ask to not return Header
+              curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+              curl_setopt($curl, CURLOPT_FAILONERROR, TRUE);
+
+              $response = curl_exec($curl);
+              if( ! $response)
+                error_log("Failed to create activity reminder node id: $node->nid activityid: $activity_node->nid response:". $response);
+              $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+          }
+        }
+      }
+      catch(Exception $e){
+        error_log("Failed create activity summary".$e->getMessage().EOL);
+        //die;
+      }
+  }
+    else{
+        //error_log("activity not save");
+        node_submit($node);
+        node_save($node);
+    }
+}
+
+/**
+ * Implements hook_file_insert.
+ * This hook is called after a file has been added to the database. The hook doesn't distinguish between files created as a result of a copy or those created by an upload.
+ */
+function ccsf_ws_file_insert($file) {
+    // insert uploaded file to Google Drive, remove the file from localhost, update uri in file managed table.
+    if(strpos($file->source, 'field_activity_summary_und_entities') > - 1){
+        if (module_exists('droogle') && function_exists('droogle_gdrive_connect')) {
+            $return_result = droogle_gdrive_connect('droogle_gdrive_create_file');
+            $client = $return_result['client'];
+            $service = $return_result['service'];
+            if (isset($return_result['authUrl'])) {
+                $authUrl = $return_result['authUrl'];
+            }
+            /************************************************
+            If we're signed in then lets try to upload our
+            file.
+             ************************************************/
+            $refresh_token = variable_get('droogle_refresh_token', '');
+            if(!empty($refresh_token) && $client->isAccessTokenExpired()) {
+                $client->refreshToken($refresh_token);
+            }
+
+            if( !variable_get("google_drive_folderid")){
+                drupal_set_message('Something went wrong creating Google folder for ', 'warning');
+            }else{
+                // create folder for this case, need to check folder exists or not.
+                $description = "File attachment for activity, case";
+                $file_name = file_stream_wrapper_get_instance_by_uri($file->uri)->realpath();
+
+                $googlefile = insertFile($service, $description, variable_get("google_drive_folderid"), $file->filename, $file_name);
+
+                // successfully inserted file to google drive, need to write cron to clean up uploaded file, but not saved.
+                if($googlefile != null){
+                    $update = "UPDATE file_managed SET uri='". $googlefile->id."' WHERE fid = " . $file->fid . ";";
+                    db_query($update);
+                    // remove the physical file
+                    drupal_unlink($file->uri);
+                    // create empty file
+                    shell_exec('touch '. drupal_realpath($file->uri) );
+                }
+            }
+        }
+    }
+}
+
+/**
+ *  get CSRF token for web services POST
+ */
+function ccsf_ws_get_csrf_header() {
+  global $base_url;
+  $curl_get = curl_init();
+  curl_setopt_array($curl_get, array(
+    CURLOPT_RETURNTRANSFER => 1,
+    CURLOPT_URL => $base_url . "/services/session/token",
+  ));
+  $csrf_token = curl_exec($curl_get);
+  curl_close($curl_get);
+
+  return 'X-CSRF-Token: ' . $csrf_token;
+}
+
+/**
+ *  add username to list of compliance officer vocabulary.
+ */
+function ccsf_ws_update_user_terms($form, &$form_state){
+   // check to see if user name already exists.
+  $select = "select count(*) from users where name = '".$form_state['values']['name']."'; ";
+
+  if(db_query($select)->fetchField() > 0){
+      $term = new stdClass();
+      $term->name = $form_state['values']['name'];
+      $term->vid = 2;
+      taxonomy_term_save($term);
+  }
+}
+/**
+ * set default values for dashboard forena parameters
+ */
+function ccsf_ws_forena_parameters_alter($report_name, &$parms) {
+  global $user;
+  $rid = in_array('5',array_keys($user->roles)) ? 5 : 10;
+  $parms['uid'] = $user->uid;
+  $parms['rid'] = $rid;
+}
+/**
+ * get compliance user from taxonomy with matching name
+ */
+function ccsf_ws_get_comp_officer_name($entity_id){
+  $select = " SELECT concat(fn.field_user_firstname_value, ' ', ln.field_user_lastname_value)
+        FROM field_data_field_user_firstname fn
+        JOIN field_data_field_user_lastname ln ON ln.entity_id = fn.entity_id
+        WHERE fn.entity_id=$entity_id";
+
+  $fullname = db_query($select)->fetchField();
+  return $fullname;
+}
+
+
+/**
+ * Assign node to selected user
+ */
+function ccsf_ws_node_presave($node){
+  if(isset($node->field_compliance_officer[LANGUAGE_NONE][0]['tid'])){
+    $uid = db_query('Select U.uid FROM users U JOIN taxonomy_term_data T ON U.name = T.name WHERE T.tid = :tid AND U.status = 1', array(':tid' => $node->field_compliance_officer[LANGUAGE_NONE][0]['tid']))->fetchField();
+    if(!empty($uid) && $node->uid != $uid)
+      $node->uid = $uid;
+  } 
+}
+
+/**
+* Perform alterations before the reference form is included in the IEF widget.
+ *
+ * The reference form is used to add existing entities through an autocomplete
+* field
+*
+ * @param $reference_form
+*   Nested array of form elements that comprise the reference form.
+ * @param $form_state
+*   The form state of the parent form.
+ */
+function ccsf_ws_inline_entity_form_reference_form_alter(&$entity_form, &$form_state) {
+    error_log("inline entity ref");
+  /*$entity_form['actions']['#attached']['js'] = array(
+    drupal_get_path('module', 'ccsf_ws') . '/js/ccsf_ws.js',
+  );*/
+}
+function ccsf_ws_inline_entity_form_entity_form_alter(&$entity_form, &$form_state, $form) {
+    // add submit handler to save parent node when add/edit save button is clicked
+    $entity_form['actions']['ief_add_save']['#submit'][] = 'ccsf_ws_inline_entity_form_submit_save_parent';
+    $entity_form['actions']['ief_edit_save']['#submit'][] = 'ccsf_ws_inline_entity_form_submit_save_parent';
+}
+function ccsf_ws_inline_entity_form_submit_save_parent($form, &$form_state){
+    //error_log(print_r($form_state['values']['field_activity_summary']['und']['entities'][0]['form']['field_activity_id'],1));
+    //error_log(print_r($form_state['values'],1));
+    //error_log(print_r($form['nid'],1));
+}
+function ccsf_ws_inline_entity_form_table_fields_alter(&$fields, $context) {
+  //Determine the bundle and entity type from $context
+  //get rid of the id field
+  //unset($fields['title']);
+  unset($fields['status']);
+
+  switch($context['field_name']){
+    case "field_activity_summary":
+      unset($fields['title']);
+      $fields['field_activity_date'] = array(
+        'type' => 'field',
+        'label' => t('Activity Date'),
+        'weight' => 11
+      );
+      $fields['field_activity_description'] = array(
+        'type' => 'field',
+        'label' => t('Description'),
+        'weight' => 13
+      );
+      $fields['field_activity_type'] = array(
+        'type' => 'field',
+        'label' => t('Activity Type'),
+        'weight' => 12
+      );
+     $fields['field_co_full_name'] = array(
+        'type' => 'field',
+        'label' => t('Compliance Officer'),
+        'weight' => 14,
+      );
+      $fields['field_activity_notes'] = array(
+        'type' => 'field',
+        'label' => t('Notes'),
+        'weight' => 15,
+      );
+      $fields['field_attachments'] = array(
+            'type' => 'field',
+            'label' => t('Attachments'),
+            'weight' => 16,
+        );
+      break;
+    case "field_additional_business":
+        $fields['title']['label'] = t('Business Name');
+
+      $fields['field_additional_bl'] = array(
+        'type' => 'field',
+        'label' => t('Business Location'),
+        'weight' => 12
+      );
+      $fields['field_business_phone'] = array(
+        'type' => 'field',
+        'label' => t('Phone #'),
+        'weight' => 13
+      );
+      break;
+    case "field_additional_owners":
+        $fields['title']['label'] =  t('Business Contact');
+
+      $fields['field_additional_bt'] = array(
+        'type' => 'field',
+        'label' => t('Title'),
+        'weight' => 3
+      );
+
+      $fields['field_business_phone_2'] = array(
+        'type' => 'field',
+        'label' => t('Phone #'),
+        'weight' => 4
+      );
+      $fields['field_primary_business_contact_e'] = array(
+        'type' => 'field',
+        'label' => t('Email'),
+        'weight' => 5
+      );
+      break;
+    case "field_additional_claimants":
+        $fields['title']['label'] = 'First Name';
+
+      $fields['field_last_name'] = array(
+        'type' => 'field',
+        'label' => t('Last Name'),
+        'weight' => 7
+      );
+      $fields['field_additional_c_phone'] = array(
+        'type' => 'field',
+        'label' => t('Phone'),
+        'weight' => 8
+      );
+      $fields['field_primary_claimant_email'] = array(
+        'type' => 'field',
+        'label' => t('Email'),
+        'weight' => 9
+      );
+      $fields['field_add_business_location'] = array(
+        'type' => 'field',
+        'label' => t('Business Location'),
+        'weight' => 10
+      );
+      /*$fields['field_notes'] = array(
+        'type' => 'field',
+        'label' => t('Notes'),
+        'weight' => 10
+      );*/
+      break;
+  }
+}

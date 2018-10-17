@@ -1,0 +1,551 @@
+/**
+ * Created by admintk on 4/15/15.
+ */
+(function ($){
+    $(function() {
+
+        function loadActivityDescription(casetype){
+             if($("#edit-field-activity-description-und").val() != 'other')
+                $("#edit-field-other-activity-description").hide();
+            if($("#edit-field-activity-type-und").val() != 'other')
+                $("#edit-field-other-activity-type").hide();
+            if($("#edit-field-activity-type-und").val() == 'correspondence' ){
+                if(casetype == 'mwo' || casetype == 'pslo'){
+                    var mwopslo  = ["advisory", "audit", "citation", "notice_of_d", "settlement_ag"];
+                    $("#edit-field-activity-description-und option").each(function(){
+                        if( ! ( $.inArray($(this).val(), mwopslo) > -1) )
+                            $(this).remove();
+                        //else
+                            //$(this).hide();
+                    });
+                }
+                else if(casetype == 'hcso'){
+                    var hcso = ["advisory_letter","np_violation","notice_violation","d_violation","no_violation","with_violation","settlement","dov","escrow"];
+                    $("#edit-field-activity-description-und option").each(function(){
+                        if( !($.inArray($(this).val(), hcso) > -1) ){
+                            $(this).remove();
+                        }
+                        //else{
+                            //$(this).hide();
+                        //}
+                    });
+                }
+            }
+            else if($("#edit-field-activity-type-und").val() == 'phone' || $("#edit-field-activity-type-und").val() == 'email' ){
+                var other = ["claimant","claimant_rep","emp","emp_rep","other"];
+                $("#edit-field-activity-description-und option").each(function(){
+                    if( !($.inArray($(this).val(), other) > -1) )
+                        $(this).remove();
+                    //else
+                      //  $(this).hide();
+                });
+                $("#edit-field-activity-description-und").change( function(){
+                    if($(this).val() == 'other')
+                        $("#edit-field-other-activity-description").show();
+                    else
+                        $("#edit-field-other-activity-description").hide();
+                });
+            }
+            else if($("#edit-field-activity-type-und").val() == 'meeting' ){
+                var meetings = ["withstaff","withworkers","withemployers","withworkersrep","withemployerrep","withattorney"];
+                $("#edit-field-activity-description-und option").each(function(){
+                    if( !($.inArray($(this).val(), meetings) > -1) ){
+                        $(this).remove();
+                    }
+                });
+            }
+            else{
+                $("#edit-field-activity-description-und option").each(function(){
+                    $(this).remove();
+                });
+                $("#edit-field-activity-description-und").append('<option value="none">none</option>');
+            }
+        }
+        function openOverlay(olEl) {
+            $oLay = $(olEl);
+
+            if ($('#overlay-shade').length == 0)
+                $('body').prepend('<div id="overlay-shade"></div>');
+
+            $('#overlay-shade').fadeTo(100, 0.6, function() {
+                var props = {
+                    oLayWidth       : $oLay.width(),
+                    scrTop          : $(window).scrollTop(),
+                    viewPortWidth   : $(window).width()
+                };
+
+                var leftPos = (props.viewPortWidth - props.oLayWidth) / 2;
+
+                $oLay
+                    .css({
+                        display : 'block',
+                        opacity : 0,
+                        top : '-=300',
+                        left : leftPos+'px'
+                    })
+                    .animate({
+                        top : props.scrTop + 40,
+                        opacity : 1
+                    }, 600);
+            });
+        }
+        function closeOverlay() {
+            $('.overlay').animate({
+                top : '-=300',
+                opacity : 0
+            }, 400, function() {
+                $('#overlay-shade').fadeOut(100);
+                $(this).css('display','none');
+            });
+        }
+        function GetQueryStringParams(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] == sParam) {
+                    return sParameterName[1];
+                }
+            }
+        }
+        // detects any changes were made on current tab.
+        var hasChanges = false;
+        $('input, select').change(function() { hasChanges = true; }); // checkboxes, radio buttons and selects
+        $('input, textarea').keypress(function() {hasChanges = true;}); // textfields and textareas
+        //Mark at start if there are form errors
+        if (jQuery('.form-item .error').length > 0) hasChanges = true;
+
+        var uid = Drupal.settings.forena.uid;
+        var hide_sco =  0;
+        var d = new Date();
+        var todayis = d.toLocaleDateString();
+        var statushistory = $("#edit-field-status-history-und-0-value").val();
+        if(Drupal.settings.forena.rid != 5)
+            $('.group-sco').hide();
+        var pathArray = window.location.pathname.split( '/' );
+        var currentNid = pathArray[3];
+
+        if($(".node-intake_form-form").length > 0){
+            $(".steps").show();
+            $(".tabledrag-toggle-weight-wrapper").hide();
+            var element = $('#edit-actions').detach();
+            $("#intake-form-node-form > div > div:first-child").append(element);
+            // add scroll listener to move menu from/to top to/from bottom
+            docHeight = $(document).height();
+            $(window).scroll( function(){
+                //docHeight = $(document).height();
+                if($(window).scrollTop() > docHeight / 2.5 ){
+                    var element = $('#edit-actions').detach();
+                    $("#intake-form-node-form > div").append(element);
+                }
+                else if($(window).scrollTop() < docHeight / 4){
+                    var element = $('#edit-actions').detach();
+                    $("#intake-form-node-form > div > div:first-child").append(element);
+                }
+
+            })
+            // hightlight selected tab
+            //var step = parseInt($("#edit-field-stephidden-und-0-value").val()) + 1;
+            var step = (GetQueryStringParams('step'));
+            step = parseInt(step) + 1;
+            if( isNaN(step))
+                step = 1;
+            $(".steps input:nth-child(" + step + ")").addClass('menu-tab-active');
+
+            // set step
+            // disable saving of activity if users navigate away from activity
+            if((step - 1) == 4)
+              $("#edit-field-save-current-activity-und").prop('checked', true);
+            else
+                $("#edit-field-save-current-activity-und").prop('checked', false);
+
+            if($("#edit-field-activityid-hidden").length > 0)
+                $("#edit-field-activityid-hidden").hide();
+
+            $("#click-claim").click(function(){
+                $("#edit-field-stephidden-und-0-value").val(0);
+                //$("#edit-field-save-current-activity-und").prop('checked', false);
+                //$("#edit-claim").click();
+                $("#edit-submit").click();
+            })
+            $("#click-business").click(function(){
+                $("#edit-field-stephidden-und-0-value").val(1);
+                //$("#edit-field-save-current-activity-und").prop('checked', false);
+                //$("#edit-business").click();
+                $("#edit-submit").click();
+
+            })
+            $("#click-contact").click(function(){
+                $("#edit-field-stephidden-und-0-value").val(2);
+                //$("#edit-field-save-current-activity-und").prop('checked', false);
+                //$("#edit-contact").click();
+                $("#edit-submit").click();
+            })
+            $("#click-claimant").click(function(){
+                $("#edit-field-stephidden-und-0-value").val(3);
+                //$("#edit-field-save-current-activity-und").prop('checked', false);
+                //$("#edit-claimant").click();
+                $("#edit-submit").click();
+            })
+            $("#click-activity").click(function(){
+                $("#edit-field-stephidden-und-0-value").val(4);
+                //$("#edit-field-save-current-activity-und").prop('checked', true);
+                //$("#edit-activitysheet").click();
+                $("#edit-submit").click();
+            })
+            $("#edit-previous").click( function(){
+                step = step - 2;
+                //$("#edit-field-stephidden-und-0-value").val(step);
+                //$("#edit-field-save-current-activity-und").prop('checked', false);
+                $("#edit-submit").click();
+            })
+            $("#edit-next").click(function (){
+                if(step < 5)
+                    $("#edit-field-stephidden-und-0-value").val(step);
+                  //  $("#edit-field-save-current-activity-und").prop('checked', false);
+                /*}
+                else{
+                  $("#edit-field-save-current-activity-und").prop('checked', true);
+                }*/
+                $("#edit-submit").click();
+            })
+            // create case # base on case type
+            if($("#edit-title").val() != "") // new intake, case type must be defined first
+            {
+                $(".node-intake_form-form > div > div").show();
+                $(".field-name-field-casetypehidden").hide();
+                $(".field-name-field-stephidden").hide();
+                $(".field-name-field-bnhhidden").hide();
+            }
+            else{
+                $(".node-intake_form-form > div > div").hide();
+                $("#edit-field-claim-type").show();
+                $("#edit-field-claim-type-und").change( function(){
+                    var param = $(this).val();
+                    $.ajax({
+                        url: "/olsecms/api/list/casetype/"+ param,
+                        dataType: 'json'
+                    }).done( function(data){
+                        if(data){
+                            $("#edit-title").val(data);
+                            $("#edit-field-casetypehidden-und-0-value").val(param);
+                            $("#edit-submit").trigger('click');
+                        }
+                    });
+                });
+            }
+
+            // attach business name to title
+            $("#page-title").append('<div class="bn-title"> ' +  $("#edit-field-bnhhidden-und-0-value").val() + '</div>');
+            // update status history, status history textarea should be disabled
+            $("#edit-field-status-history-und-0-value").prop("disabled",true);
+            $("#edit-field-current-claim-status-und").change( function(){
+                $("#edit-field-status-history-und-0-value").val($(this).val() + " - " + todayis+ "\n" + statushistory);
+            });
+
+            // get a list of DBA that contains user input
+            $("#edit-field-business-name-und-0-value").prop("autocomplete","off"); // turn off browser autocomplete
+            //$("#edit-field-business-name-und-0-value").prop("autocomplete","off");
+            var datasource = {};
+            $("#edit-field-business-name-und-0-value").autocomplete(
+                {
+                    source: function( request, response ) {
+                        openOverlay('#retrieve-businessname');
+                        $.ajax({
+                            url: "https://data.sfgov.org/resource/g8m3-pdis.json",
+                            dataType: "json",
+                            data: {
+                                $q: request.term.toLowerCase()
+                            },
+                            success: function( data ) {
+                                var i = 0;
+                                var datasource = new Object();
+                                for(index=0;index<data.length;index++){
+                                    var dbaname = data[index]['dba_name'].toLowerCase();
+                                    if(dbaname != '' && dbaname.indexOf(request.term.toLowerCase(), 0) === 0){
+                                        data[index].value = data[index]['dba_name'] + " : " + data[index]['full_business_address'];
+                                        datasource[i] = data[index];
+                                        i++;
+                                    }
+                                }
+                                closeOverlay();
+                                response( datasource );
+                            }
+                        }).always( function(){
+                            closeOverlay();
+                        });
+                    },
+                    minLength: 3,
+                    select: function( event, ui ) {
+                        //console.log(ui.item);
+                        $("#edit-field-business-name-und-0-value").val(ui.item.ownership_name);
+                        $("#edit-field-business-address-und-0-field-address-und-0-value").val(ui.item.full_business_address);
+                        $("#edit-field-business-account-und-0-value").val(ui.item.certificate_number);
+                        $("#edit-field-business-address-und-0-field-city-und-0-value").val(ui.item.city);
+                        $("#edit-field-business-address-und-0-field-zip-code-und-0-value").val(ui.item.business_zip);
+                        $("#edit-field-business-address-und-0-field-state-und").val(ui.item.state);
+                        $("#edit-field-ownership-name-und-0-value").val(ui.item.ownership_name);
+                        $("#edit-field-bnhhidden-und-0-value").val(ui.item.dba_name);
+                    },
+                    open: function() {
+                        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                    },
+                    close: function() {
+                        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                    }
+
+                });
+            // if activity sheet, load activity descriptions
+            $("#edit-field-activity-und-form-field-other-activity-type").hide();
+            var selectHTML = $("#edit-field-activity-description-und").html();
+            if($("#edit-field-activity-type"). length > 0){
+                if(($("#edit-field-activity-type-und").val() == '_none'))
+                    ($("#edit-field-activity-type-und").val('none'));
+                loadActivityDescription($("#edit-field-casetypehidden-und-0-value").val());
+                $("#edit-field-activity-type-und").change( function(){
+                    // restor the select HTML
+                   $("#edit-field-activity-description-und").html(selectHTML);
+                   if($(this).val() == 'other')
+                       $("#edit-field-other-activity-type").show();
+                   else
+                       $("#edit-field-other-activity-type").hide();
+                    loadActivityDescription($("#edit-field-casetypehidden-und-0-value").val());
+                });
+                // calculate Activity cost
+                $("#edit-field-compliance-officer-job-cla-und").change( function(){
+                    var totalcost = parseFloat($("#edit-field-time-spent-und-0-value").val()) * parseFloat($(this).val());
+                    if( isNaN(totalcost) )
+                      totalcost = 0;
+                    $("#edit-field-activity-cost-und-0-value").val(totalcost);
+                });
+                $("#edit-field-time-spent-und-0-value").change( function(){
+                    var totalcost = parseFloat($("#edit-field-compliance-officer-job-cla-und").val()) * parseFloat($(this).val());
+                    if( isNaN(totalcost) )
+                        totalcost = 0;
+                    $("#edit-field-activity-cost-und-0-value").val(totalcost);
+                });
+                //attachShowAttachments();
+            }
+            // if populate from business address is checked
+            $("#edit-field-populate-business-address-und").click( function(){
+                if($(this).is(":checked")){
+                    $.ajax({
+                        url: "/olsecms/api/list/business_address/"+ currentNid,
+                        dataType: 'json'
+                    }).done( function(data){
+                        if(data){
+                            //console.log(data[0].address);
+                            $("#edit-field-primary-business-contact-a-und-0-field-business-address-und-0-field-address-und-0-value").val(data[0].address);
+                            $("#edit-field-primary-business-contact-a-und-0-field-business-address-und-0-field-city-und-0-value").val(data[0].city);
+                            $("#edit-field-primary-business-contact-a-und-0-field-business-address-und-0-field-zip-code-und-0-value").val(data[0].zipcode);
+                            $("#edit-field-primary-business-contact-a-und-0-field-business-address-und-0-field-state-und").val(data[0].state);
+                            $("#edit-field-primary-business-contact-a-und-0-field-business-address-und-0-field-address2-und-0-value").val(data[0].address2);
+                        }
+                    });
+                }
+            });
+        }
+        else{
+            $(".steps").hide();
+        }
+        if($(".node-payment-form").length > 0){
+            currentNid = $("#edit-title").val();
+            var checklist = "";
+            $("#edit-field-assessment-for-workers-und input:checked").each( function(){
+                checklist = checklist + $(this).val() + "|";
+            });
+
+            // autocomplete for case number
+            $("#edit-title").autocomplete(
+                {
+                    source: function( request, response ) {
+                        $.ajax({
+                            url: "/olsecms/api/list/casenumber/"+request.term,
+                            dataType: "json",
+                            success: function( data ) {
+                                var datasource = new Object();
+                                data = JSON.parse(data[0]);
+                                for(index=0;index<data.length;index++){
+                                    datasource[index] = {'label': data[index].title, 'value': data[index].nid};
+                                }
+                                response( datasource );
+                            }
+                        });
+                    },
+                    minLength: 3,
+                    select: function( event, ui ) {
+                        //console.log(ui.item.label);
+                        $("#edit-title").val(ui.item.label);
+
+                    },
+                    open: function() {
+                        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+                    },
+                    close: function() {
+                        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+                    }
+
+                });
+            // check if google spreadsheet already created
+            if($("#edit-field-spreadsheet-link-und-0-value").val() != ""){
+                $(".group-step2").show();
+                //$(".group-step1").hide();
+                var paymentlink = "<a href='https://docs.google.com/spreadsheets/d/" + $("#edit-field-spreadsheet-link-und-0-value").val() + "/edit?usp=drivesdk' target='_blank' id='paymentworksheet' class='google-doc-links'> Google Spreadsheet Link</a>";
+                $(paymentlink).insertAfter($("#sync_google_doc"));
+                $("#sync_google_doc").hide();
+                // add link to create 2nd payment worksheet
+                $("<a href='' id='create_worksheet' class='google-doc-links'> Create  Payment Schedule</a>").insertAfter("#paymentworksheet");
+
+                // add reset link
+                $("<a href='' id='reset_worksheet' class='google-doc-links'> Reset Worksheets</a>").insertAfter("#create_worksheet");
+
+                //  hide create payment schedule until #payments and total amount is filled
+                if( $("#edit-field-number-of-payments-und-0-value").val() == "")
+                    $("#create_worksheet").hide();
+                $("#edit-field-number-of-payments-und-0-value").change(function(){
+                    if( $("#edit-field-number-of-payments-und-0-value").val() != "" )
+                        $("#create_worksheet").show();
+                })
+
+                // create payment worksheet
+                $("#create_worksheet").click( function(){
+                    openOverlay('#overlay-inAbox');
+                    var createlist = "nid=" + currentNid + "&type=worksheet&title=" + encodeURIComponent($("#edit-field-spreadsheet-title-und-0-value").val()) + "&fileid=" + $("#edit-field-spreadsheet-link-und-0-value").val();
+                    createlist += "&startdate=" + ($(".form-item-field-1st-payment-date-und-0-value-date input").val()).replace(/\//gi,'_');
+                    createlist += "&totalnumber=" + $("#edit-field-total-amount-und-0-value").val();
+                    createlist += "&payments=" + $("#edit-field-number-of-payments-und-0-value").val();
+                    createlist += "&frequency=" + $("#edit-field-payment-frequency-und option:selected").val();
+                    createlist += "&checklist=" + checklist;
+                    $.ajax({
+                        url: "/olsecms/droogle/ajax/" + createlist,
+                        cache: true
+                    }).done(function(data){
+                        closeOverlay();
+                    });
+                    return false;
+                });
+
+                // reset link click
+                var resetlist = "nid=" + currentNid + "&type=resetworksheet&title=" + encodeURIComponent($("#edit-field-spreadsheet-title-und-0-value").val()) + "&fileid=" + $("#edit-field-spreadsheet-link-und-0-value").val();
+                $("#reset_worksheet").click( function(){
+                    $("#edit-field-spreadsheet-link-und-0-value").val("");
+                    $("#edit-field-spreadsheet-title-und-0-value").val("");
+                    openOverlay('#overlay-inAbox');
+                    $.ajax({
+                        url: "/olsecms/droogle/ajax/" + resetlist,
+                        cache: true
+                    }).done(function(data){
+                        $(".group-step2").hide();
+                        //$(".group-step1").show();
+                        $("#create_worksheet").remove();
+                        $("#reset_worksheet").remove();
+                        $("#paymentworksheet").remove();
+                        closeOverlay();
+                        $("#sync_google_doc").show();
+                    });
+                    return false;
+                });
+            }
+            //create payment summary from google docs
+            $("#sync_google_doc").click( function(){
+                openOverlay('#overlay-inAbox');
+                var querylist = "nid=" + currentNid + "&type=create&numberC=" + encodeURIComponent($("#edit-field-number-of-claimants-und-0-value").val()) + "&checklist=" + encodeURIComponent(checklist);
+
+                $.ajax({
+                    url: "/olsecms/droogle/ajax/" + querylist,
+                    cache: false
+                }).done(function(data){
+                    var paymentlink = "<a href='https://docs.google.com/spreadsheets/d/" + data.id + "/edit?usp=drivesdk' target='_blank' id='paymentworksheet' class='google-doc-links'> Google Spreadsheet Link</a>";
+                    $(paymentlink).insertAfter($("#sync_google_doc"));
+                    $("#sync_google_doc").hide();
+                    //
+                    var worksheet = "<a href='#' id='create_worksheet' class='google-doc-links' > Create  Payment Schedule </a>";
+                    $(worksheet).insertAfter("#paymentworksheet");
+
+                    // add reset link
+                    $("<a href='' id='reset_worksheet' class='google-doc-links'> Reset Worksheets</a>").insertAfter("#create_worksheet");
+
+                        //  hide create payment schedule until #payments and total amount is filled
+                        if( $("#edit-field-number-of-payments-und-0-value").val() == "" || $("#edit-field-total-amount-und-0-value").val() == "")
+                            $("#create_worksheet").hide();
+                        $("#edit-field-number-of-payments-und-0-value").change(function(){
+                            if( $("#edit-field-number-of-payments-und-0-value").val() != "" && $("#edit-field-total-amount-und-0-value").val() != "")
+                                $("#create_worksheet").show();
+                        })
+                        $("#edit-field-total-amount-und-0-value").change(function(){
+                            if( $("#edit-field-number-of-payments-und-0-value").val() != "" && $("#edit-field-total-amount-und-0-value").val() != "")
+                                $("#create_worksheet").show();
+                        })
+
+                    // fill drupal fields
+                    closeOverlay();
+                    //$(".group-step1").hide();
+                    $(".group-step2").show("fast", function() {
+                        $("#edit-field-spreadsheet-link-und-0-value").val(data.id);
+                        $("#edit-field-spreadsheet-title-und-0-value").val(data.title);
+
+                        var createlist = "nid=" + currentNid + "&type=worksheet&title=" + encodeURIComponent($("#edit-field-spreadsheet-title-und-0-value").val()) + "&fileid=" + data.id;
+                        createlist += "&startdate=" + $(".form-item-field-1st-payment-date-und-0-value-date input").val().replace(/\//gi,'_');
+                        createlist += "&totalnumber=" + $("#edit-field-total-amount-und-0-value").val();
+                        createlist += "&payments=" + $("#edit-field-number-of-payments-und-0-value").val();
+                        createlist += "&frequency=" + $("#edit-field-payment-frequency-und option:selected").val();
+                        createlist += "&checklist=" + checklist;
+                        // create payment worksheet
+                        $("#create_worksheet").click( function(){
+                            openOverlay('#overlay-inAbox');
+                            $.ajax({
+                                url: "/olsecms/droogle/ajax/" + createlist,
+                                cache: true
+                            }).done(function(data){
+                                closeOverlay();
+                            });
+                            return false;
+                        });
+
+                        // reset link click
+                        var resetlist = "nid=" + currentNid + "&type=resetworksheet&title=" + encodeURIComponent($("#edit-field-spreadsheet-title-und-0-value").val()) + "&fileid=" + data.id;
+                        $("#reset_worksheet").click( function(){
+                            $("#edit-field-spreadsheet-link-und-0-value").val("");
+                            $("#edit-field-spreadsheet-title-und-0-value").val("");
+                            openOverlay('#overlay-inAbox');
+                            $.ajax({
+                                url: "/olsecms/droogle/ajax/" + resetlist,
+                                cache: true
+                            }).done(function(data){
+                                $(".group-step2").hide();
+                                //$(".group-step1").show();
+                                $("#create_worksheet").remove();
+                                $("#reset_worksheet").remove();
+                                $("#paymentworksheet").remove();
+                                $("#sync_google_doc").show();
+                                closeOverlay();
+                            });
+                            return false;
+                        });
+                    });
+                });
+                return false;
+            });
+
+            // assessments for worker checkbox and inputs
+            $(".group-step1-right > div").hide();
+            $("#edit-field-assessment-for-workers-und .form-type-checkbox .form-checkbox").each(function(i){
+                if($(this).is(":checked")){
+                    var checkedme = i + 1;
+                    $(".group-step1-right > div:nth-child("+checkedme+")").show();
+                }
+            });
+            $("#edit-field-assessment-for-workers-und .form-type-checkbox .form-checkbox").change( function(i){
+                $("#edit-field-assessment-for-workers-und .form-type-checkbox .form-checkbox").each(function(i){
+                    var checkedme = i + 1;
+                    if($(this).is(":checked")){
+                        $(".group-step1-right > div:nth-child("+checkedme+")").show();
+                    }
+                    else
+                        $(".group-step1-right > div:nth-child("+checkedme+")").hide();
+                });
+            })
+        }
+
+    });
+})(jQuery);

@@ -1,0 +1,430 @@
+/* Custom CSS */
+body{
+    font-size: 16px;
+}
+h1{
+    line-height: 50%;
+}
+#page-title{
+    float: left;
+}
+
+.nav-menu-steps{
+    float: right;
+}
+.menu-tab-active{
+    background-image: -moz-linear-gradient(center top , #a7c7dc 46%, #85b2d3 57%) !important;
+}
+.nav-menu-steps .steps
+{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+}
+
+.nav-menu-steps .steps li {
+    display: inline;
+    padding-left: 5px;
+}
+
+.nav-menu-steps .steps li a
+{
+    text-decoration: none;
+    padding: .2em 1em;
+    color: #fff;
+    background-color: #036;
+}
+
+.nav-menu-steps .steps li a:hover
+{
+    color: #fff;
+    background-color: #369;
+}
+
+.node-intake_form-form div > div:nth-child(1), .node-intake_form-form div > div:nth-child(2){
+    display: block;
+}
+
+/** Hide buttons and spreadsheet download link**/
+.hidden-actions, #edit-field-spreadsheet-link, #edit-field-spreadsheet-title, .tabledrag-toggle-weight-wrapper,
+.field-collection-view .field-label, .field-collection-view-links, #breadcrumb,
+.field-name-field-stephidden{
+    display: block;
+}
+
+.group-row1, .group-row2{
+    float:left;
+}
+
+.field-collection-container{
+    border: none;
+    margin: 0px;
+}
+
+/** Payments **/
+.group-step2, .group-step3{
+    display: none;
+}
+.google-doc-links{
+    padding-right: 20px;
+}
+.group-step1-left, .group-step1-right label{
+    float:left;
+}
+.group-step1-right, .group-step1-right input{
+    float:right;
+    width: 75%;
+}
+.group-step1-right label{
+    width: 30%;
+    margin-bottom: 12px;
+    text-align: end;
+}
+.group-step1-right input{
+    width: 65%;
+}
+/** saving / loading modal **/
+a#overlaylaunch-inAbox {
+    display: block;
+    padding: 40px;
+    margin: 40px;
+    background-color: #efefef;
+    font-size: 1.6em;
+    text-decoration: none;
+    text-align: center;
+}
+
+#overlay-inAbox .wrapper {
+    text-align: center;
+}
+
+/* More important stuff */
+
+.overlay,
+#overlay-shade {
+    display: none;
+}
+
+#overlay-shade {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #000;
+}
+
+.overlay {
+    position: absolute;
+    top: -300px;
+    left: 0;
+    width: 450px;
+    min-height: 200px;
+    z-index: 10000;
+    background-color: #F0F0F0;
+    /*border: 10px solid #CFCFCF;*/
+    color: #000;
+}
+.ie7 .overlay {
+    height: 200px;
+}
+.overlay .wrapper {
+    padding: 15px 30px 30px;
+}
+
+/** hide inline reference entity status **/
+.form-item-field-additional-owners-und-form-status, .form-item-field-additional-business-und-form-status, .form-item-field-additional-claimants-und-form-status{
+    display: none;
+}
+
+.remove-me,
+#ief-entity-table-edit-field-activity-summary-und-entities .tablesorter-headerRow th:first-child,
+#ief-entity-table-edit-field-activity-summary-und-entities .tablesorter-filter-row td:first-child,
+#ief-entity-table-edit-field-activity-summary-und-entities .ief-row-entity td:first-child,
+#ief-entity-table-edit-field-activity-summary-und-entities .tablesorter-filter-row td:last-child,
+.form-item-field-additional-claimants-und-form-title, .form-item-field-additional-owners-und-form-title,
+.form-item-field-additional-business-und-form-title, .tabledrag-toggle-weight-wrapper,
+#edit-field-primary-business-contact-a-und-0-field-business-address-und-0 > legend,
+#edit-field-primary-claimant-address-und-0-field-business-address-und-0 > legend
+{
+    display: none;
+}
+
+/** table sorter**/
+.tablesorter{
+    margin-top: -20px;
+}
+
+/* pager wrapper, div */
+.tablesorter-pager {
+    padding: 5px;
+}
+/* pager wrapper, in thead/tfoot */
+td.tablesorter-pager {
+    background-color: #e6eeee;
+    margin: 0; /* needed for bootstrap .pager gets a 18px bottom margin */
+}
+/* pager navigation arrows */
+.tablesorter-pager img {
+    vertical-align: middle;
+    margin-right: 2px;
+    cursor: pointer;
+}
+
+/* pager output text */
+.tablesorter-pager .pagedisplay {
+    padding: 0 5px 0 5px;
+    width: 50px;
+    text-align: center;
+}
+
+/* pager element reset (needed for bootstrap) */
+.tablesorter-pager select {
+    margin: 0;
+    padding: 0;
+}
+
+/*** css used when "updateArrows" option is true ***/
+/* the pager itself gets a disabled class when the number of rows is less than the size */
+.tablesorter-pager.disabled {
+    display: none;
+}
+/* hide or fade out pager arrows when the first or last row is visible */
+.tablesorter-pager .disabled {
+    /* visibility: hidden */
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+    cursor: default;
+}
+
+/*************
+  Blue Theme
+ *************/
+/* overall */
+.tablesorter-blue {
+    width: 100%;
+    background-color: #fff;
+    margin: 10px 0 15px;
+    text-align: left;
+    border-spacing: 0;
+    border: #cdcdcd 1px solid;
+    border-width: 1px 0 0 1px;
+}
+.tablesorter-blue th,
+.tablesorter-blue td {
+    border: #cdcdcd 1px solid;
+    border-width: 0 1px 1px 0;
+}
+
+/* header */
+.tablesorter-blue th,
+.tablesorter-blue thead td {
+    font: bold 12px/18px Arial, Sans-serif;
+    color: #000;
+    background-color: #99bfe6;
+    border-collapse: collapse;
+    padding: 4px;
+    text-shadow: 0 1px 0 rgba(204, 204, 204, 0.7);
+}
+.tablesorter-blue tbody td,
+.tablesorter-blue tfoot th,
+.tablesorter-blue tfoot td {
+    padding: 4px;
+    vertical-align: top;
+}
+.tablesorter-blue .header,
+.tablesorter-blue .tablesorter-header {
+    /* black (unsorted) double arrow */
+    background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
+    /* white (unsorted) double arrow */
+    /* background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAAP///////yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==); */
+    /* image */
+    /* background-image: url(images/black-unsorted.gif); */
+    background-repeat: no-repeat;
+    background-position: center right;
+    padding: 4px 18px 4px 4px;
+    white-space: normal;
+    cursor: pointer;
+}
+.tablesorter-blue .headerSortUp,
+.tablesorter-blue .tablesorter-headerSortUp,
+.tablesorter-blue .tablesorter-headerAsc {
+    background-color: #9fbfdf;
+    /* black asc arrow */
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7);
+    /* white asc arrow */
+    /* background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAAP///////yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7); */
+    /* image */
+    /* background-image: url(images/black-asc.gif); */
+}
+.tablesorter-blue .headerSortDown,
+.tablesorter-blue .tablesorter-headerSortDown,
+.tablesorter-blue .tablesorter-headerDesc {
+    background-color: #8cb3d9;
+    /* black desc arrow */
+    background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
+    /* white desc arrow */
+    /* background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAAP///////yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7); */
+    /* image */
+    /* background-image: url(images/black-desc.gif); */
+}
+.tablesorter-blue thead .sorter-false {
+    background-image: none;
+    cursor: default;
+    padding: 4px;
+}
+
+/* tfoot */
+.tablesorter-blue tfoot .tablesorter-headerSortUp,
+.tablesorter-blue tfoot .tablesorter-headerSortDown,
+.tablesorter-blue tfoot .tablesorter-headerAsc,
+.tablesorter-blue tfoot .tablesorter-headerDesc {
+    /* remove sort arrows from footer */
+    background-image: none;
+}
+
+/* tbody */
+.tablesorter-blue td {
+    color: #3d3d3d;
+    background-color: #fff;
+    padding: 4px;
+    vertical-align: top;
+}
+
+/* hovered row colors
+ you'll need to add additional lines for
+ rows with more than 2 child rows
+ */
+.tablesorter-blue tbody > tr:hover > td,
+.tablesorter-blue tbody > tr:hover + tr.tablesorter-childRow > td,
+.tablesorter-blue tbody > tr:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td,
+.tablesorter-blue tbody > tr.even:hover > td,
+.tablesorter-blue tbody > tr.even:hover + tr.tablesorter-childRow > td,
+.tablesorter-blue tbody > tr.even:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td {
+    background: #d9d9d9;
+}
+.tablesorter-blue tbody > tr.odd:hover > td,
+.tablesorter-blue tbody > tr.odd:hover + tr.tablesorter-childRow > td,
+.tablesorter-blue tbody > tr.odd:hover + tr.tablesorter-childRow + tr.tablesorter-childRow > td {
+    background: #bfbfbf;
+}
+
+/* table processing indicator */
+.tablesorter-blue .tablesorter-processing {
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    /* background-image: url(../addons/pager/icons/loading.gif) !important; */
+    background-image: url('data:image/gif;base64,R0lGODlhFAAUAKEAAO7u7lpaWgAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQBCgACACwAAAAAFAAUAAACQZRvoIDtu1wLQUAlqKTVxqwhXIiBnDg6Y4eyx4lKW5XK7wrLeK3vbq8J2W4T4e1nMhpWrZCTt3xKZ8kgsggdJmUFACH5BAEKAAIALAcAAAALAAcAAAIUVB6ii7jajgCAuUmtovxtXnmdUAAAIfkEAQoAAgAsDQACAAcACwAAAhRUIpmHy/3gUVQAQO9NetuugCFWAAAh+QQBCgACACwNAAcABwALAAACE5QVcZjKbVo6ck2AF95m5/6BSwEAIfkEAQoAAgAsBwANAAsABwAAAhOUH3kr6QaAcSrGWe1VQl+mMUIBACH5BAEKAAIALAIADQALAAcAAAIUlICmh7ncTAgqijkruDiv7n2YUAAAIfkEAQoAAgAsAAAHAAcACwAAAhQUIGmHyedehIoqFXLKfPOAaZdWAAAh+QQFCgACACwAAAIABwALAAACFJQFcJiXb15zLYRl7cla8OtlGGgUADs=') !important;
+}
+
+/* Zebra Widget - row alternating colors */
+.tablesorter-blue tbody tr.odd > td {
+    background-color: #ebf2fa;
+}
+.tablesorter-blue tbody tr.even > td {
+    background-color: #fff;
+}
+
+/* Column Widget - column sort colors */
+.tablesorter-blue td.primary,
+.tablesorter-blue tr.odd td.primary {
+    background-color: #99b3e6;
+}
+.tablesorter-blue tr.even td.primary {
+    background-color: #c2d1f0;
+}
+.tablesorter-blue td.secondary,
+.tablesorter-blue tr.odd td.secondary {
+    background-color: #c2d1f0;
+}
+.tablesorter-blue tr.even td.secondary {
+    background-color: #d6e0f5;
+}
+.tablesorter-blue td.tertiary,
+.tablesorter-blue tr.odd td.tertiary {
+    background-color: #d6e0f5;
+}
+.tablesorter-blue tr.even td.tertiary {
+    background-color: #ebf0fa;
+}
+
+/* caption */
+caption {
+    background: #fff;
+}
+
+/* filter widget */
+.tablesorter-blue .tablesorter-filter-row {
+    background: #eee;
+}
+.tablesorter-blue .tablesorter-filter-row td {
+    background: #eee;
+    line-height: normal;
+    text-align: center; /* center the input */
+    -webkit-transition: line-height 0.1s ease;
+    -moz-transition: line-height 0.1s ease;
+    -o-transition: line-height 0.1s ease;
+    transition: line-height 0.1s ease;
+}
+/* optional disabled input styling */
+.tablesorter-blue .tablesorter-filter-row .disabled {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+    cursor: not-allowed;
+}
+/* hidden filter row */
+.tablesorter-blue .tablesorter-filter-row.hideme td {
+    /*** *********************************************** ***/
+    /*** change this padding to modify the thickness     ***/
+    /*** of the closed filter row (height = padding x 2) ***/
+    padding: 2px;
+    /*** *********************************************** ***/
+    margin: 0;
+    line-height: 0;
+    cursor: pointer;
+}
+.tablesorter-blue .tablesorter-filter-row.hideme * {
+    height: 1px;
+    min-height: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    /* don't use visibility: hidden because it disables tabbing */
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+/* filters */
+.tablesorter-blue input.tablesorter-filter,
+.tablesorter-blue select.tablesorter-filter {
+    width: 98%;
+    height: auto;
+    margin: 0;
+    padding: 4px;
+    background-color: #fff;
+    border: 1px solid #bbb;
+    color: #333;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transition: height 0.1s ease;
+    -moz-transition: height 0.1s ease;
+    -o-transition: height 0.1s ease;
+    transition: height 0.1s ease;
+}
+/* rows hidden by filtering (needed for child rows) */
+.tablesorter .filtered {
+    display: none;
+}
+
+/* ajax error row */
+.tablesorter .tablesorter-errorRow td {
+    text-align: center;
+    cursor: pointer;
+    background-color: #e6bf99;
+}
+
+
+
+

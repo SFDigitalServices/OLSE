@@ -1,0 +1,14 @@
+name = onedrive
+description = Drupal and Onedrive Mashup.
+package = CCSF Development
+core = 7.x
+dependencies[] = libraries
+dependencies[] = xautoload
+files[] = onedrive-php-sdk-master/src/Krizals/Onedrive/*.php
+
+; Information added by Drupal.org packaging script on 2014-02-11
+version = "7.x-4.0-beta15"
+core = "7.x"
+project = "onedrive"
+datestamp = "1392130001"
+

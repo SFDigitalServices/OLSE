@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Login Destination module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function ccsf_ws_schema() {
+  $schema['activity_reminder'] = array(
+    'description' => 'Activity reminder email.',
+    'fields' => array(
+      'ar_id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique ID.',
+      ),
+      'ar_activityid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Activity ID, references the activity.',
+      ),
+      'ar_status' => array(
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'description' => 'status of this activity reminder',
+      ),
+      'ar_last_updated' => array(
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'description' => 'Latest datetime when this reminder is sent, failed or not',
+      ),
+
+    ),
+    'primary key' => array('ar_id'),
+    'indexes' => array(
+      'list' => array('ar_id'),
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook uninstall
+ */
+function ccsf_ws_uninstall() {
+ // Remove variables created by Multistep eNtityform.
+ db_delete('variable')->condition('name', 'ar\_%', 'LIKE');
+}
+

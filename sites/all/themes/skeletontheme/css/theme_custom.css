@@ -1,0 +1,393 @@
+/* Custom CSS */
+body{
+    border: none;
+    font-size: 16px;
+}
+h1{
+    line-height: 50%;
+}
+#page-title{
+    float: left;
+    width: 100%;
+}
+.go-back{
+    width: 20%;
+    float: left;
+}
+.bn-title{
+    width: 75%;
+    float:right;
+    line-height: 100%;
+}
+#navigation{
+    margin-bottom: 40px;
+}
+.nav-menu-steps{
+    float: right;
+    width: auto;
+    margin-bottom: 20px;
+    margin-top: -18px;
+}
+.menu{
+    font-size: 16px;
+}
+.container{
+    width: 1200px;
+    margin-left: 5%;
+}
+.container .sixteen.columns{
+    width: 95%;
+}
+
+.tabs ul.primary{
+    display: none;
+}
+#edit-preview{
+    display: none;
+}
+#edit-actions{
+    width: 20%;
+    margin-top: -20px;
+    float: left;
+}
+#edit-field-case-files-input{
+	padding-top: 50px;
+}
+/** navigation buttons **/
+.menu-tab-active{
+    font-size: 1.5em;
+    background-image: -ms-linear-gradient(top, top, #FFFFFF 10%, #a7c7dc 90%) !important;
+    background-image: -moz-linear-gradient(center top , #FFFFFF 10%, #a7c7dc 90%) !important;
+    background-image: -o-linear-gradient(top, top, #FFFFFF 10%, #a7c7dc 90%) !important;
+    background-image: -webkit-gradient(top, #FFFFFF 10%, #a7c7dc 90%) !important;
+    background-image: -webkit-linear-gradient(top, #FFFFFF 10%, #a7c7dc 90%) !important;
+    background-image: linear-gradient(top, #FFFFFF 10%, #a7c7dc 90%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#a7c7dc') !important;
+
+    /* IE10 */
+    background-image: -ms-linear-gradient(top, #FFFFFF 10%, #a7c7dc 90%)!important;
+    /* Mozilla Firefox */
+    background-image: -moz-linear-gradient(top,  #FFFFFF 10%, #a7c7dc 90%)!important;
+    /* Opera */
+    background-image: -o-linear-gradient(top,  #FFFFFF 10%, #a7c7dc 90%)!important;
+    /* Webkit (Safari/Chrome 10) */
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #a7c7dc)) !important;
+    /* Webkit (Chrome 11+) */
+    background-image: -webkit-linear-gradient(top,  #FFFFFF 10%, #a7c7dc 90%) !important;
+    /* Proposed W3C Markup */
+    background-image: linear-gradient(top,  #FFFFFF 10%, #a7c7dc 90%)!important;
+    /* IE6-9 */
+    filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#a7c7dc')!important;
+}
+/** Content top area **/
+#messages{
+    padding: 0;
+    margin-bottom: 20px;
+}
+.step-initial-step{
+    margin-top: -20px;
+}
+.step-initial-step .form-actions{
+    margin-top: 0;
+    padding: 0;
+}
+
+.region-page-top, #skip-link{
+    display: none;
+}
+
+.link-button {
+    background-image: -moz-linear-gradient(center top , #ffffff 0%, #e3e3e3 100%);
+
+    background-image: -ms-linear-gradient(top, top, #FFFFFF 10%, #e3e3e3 90%) !important;
+    background-image: -o-linear-gradient(top, top, #FFFFFF 10%, #e3e3e3 90%) !important;
+    background-image: -webkit-gradient(top, #FFFFFF 10%, #e3e3e3 90%) !important;
+    background-image: -webkit-linear-gradient(top, #FFFFFF 10%, #e3e3e3 90%) !important;
+    background-image: linear-gradient(top, #FFFFFF 10%, #e3e3e3 90%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#e3e3e3', GradientType=0) !important;
+    /* IE10 */
+    background-image: -ms-linear-gradient(top, #FFFFFF 10%, #e3e3e3 90%)!important;
+    /* Mozilla Firefox */
+    background-image: -moz-linear-gradient(top,  #FFFFFF 10%, #e3e3e3 90%)!important;
+    /* Opera */
+    background-image: -o-linear-gradient(top,  #FFFFFF 10%, #e3e3e3 90%)!important;
+    /* Webkit (Safari/Chrome 10) */
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #e3e3e3)) !important;
+    /* Webkit (Chrome 11+) */
+    background-image: -webkit-linear-gradient(top,  #FFFFFF 10%, #e3e3e3 90%) !important;
+    /* Proposed W3C Markup */
+    background-image: linear-gradient(top,  #FFFFFF 10%, #e3e3e3 90%)!important;
+    /* IE6-9 */
+    filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#e3e3e3')!important;
+
+    border: 1px solid #dbdbdb;
+    border-radius: 6px;
+    box-shadow: 0 1px 0 0 white inset;
+    color: #333333;
+    font-weight: bold;
+    padding: 8px 1em 9px;
+    position: relative;
+    text-shadow: 0 1px 0 white;
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: 20px;
+}
+
+.node-intake_form-form div > div:nth-child(1), .node-intake_form-form div > div:nth-child(2){
+    display: block;
+}
+.field-widget-date-popup .form-wrapper legend{
+    font-weight: bold;
+}
+
+/** 2 column style**/
+.group-left,
+.group-new-case-screen{
+    float: left;
+}
+.group-right {
+    float: right;
+    width: 47%;
+}
+.node-intake_form-form .field-type-entityreference, .field-name-field-save-current-activity{
+    float: left;
+    width: 100%;
+}
+.node-intake_form-form .field-type-field-collection{
+    width: auto;
+}
+/** Activity tab, make this catchy so user knows what to do **/
+.form-item-field-save-current-activity-und label{
+    font-weight: bold;
+    font-size: 18px;
+    color: darkred;
+}
+/** Payments **/
+.field-group-date-left, .group-step2-left, .group-step1-left{
+    float: left;
+    width: 45%;
+}
+.field-group-date-right, .group-step2-right, .group-step1-right{
+    float: right;
+    width: 45%;
+}
+.group-step2{
+    display: none;
+}
+.group-step2, .group-step1, .group-step4{
+    border: 1px solid #cccccc;
+    margin-bottom: 25px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.group-step2 div, .group-step1 div, .group-step2 h3, .group-step1 h3{
+    padding-left: 2px;
+}
+.group-step2 h3, .group-step1 h3, .group-step4 h3{
+    font-size: 34px;
+    background: #dbdbdb none repeat scroll 0 0;
+}
+.field-name-field-sync-from-google-docs{
+    padding: 15px;
+}
+.google-doc-links{
+    padding-right: 20px;
+}
+#edit-field-assessment-for-workers-und .form-item{
+    float: left;
+    padding-right: 15px;
+}
+.date-padding .form-item label{
+    display: none;
+}
+
+/* Payment Summary Tab*/
+.group-payment-header{
+    margin-top: 5%;
+}
+.group-payment-entry{
+    margin-top: 12px;
+}
+.group-payment-entry div{
+    float: left;
+    margin-right: 0.5em;
+}
+.field-name-field-collected-by{
+    width: auto !important;
+}
+.field-name-field-payment-date{
+    margin-top: -1%;
+}
+.field-widget-field-collection-table .field-widget-date-popup legend, .field-widget-field-collection-table .field-widget-date-popup .description,
+.field-name-field-payment-summary table .tablesorter-headerRow th:first-child, .field-name-field-payment-summary  table .tablesorter-filter-row td:first-child,
+.field-name-field-payment-summary table .ief-row-entity td:first-child,
+#edit-field-recurring-reminder-type,
+.group-payment-entry{
+    display: none;
+}
+.field-widget-field-collection-table .field-widget-date-popup .form-wrapper, .field-widget-field-collection-table .field-widget-date-popup .form-wrapper .fieldset-wrapper{
+    padding: 0;
+    margin: 0;
+    border: none;
+    position: inherit;
+    background: none;
+}
+#edit-field-payment-entry-note textarea{
+    width: 20em;
+    float: left;
+}
+.group-payment-left, .group-payment-right{
+    width: 47%;
+}
+.group-assessed, .group-collected-paid{
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+.group-assessed h3, .group-collected-paid h3, .group-payment-entry h3{
+    background: #dbdbdb;
+}
+.group-assessed h3 span, .group-collected-paid h3 span, .group-payment-entry h3 span{
+    margin-left: 10px;
+    font-size: 1.25em;
+}
+.group-assessed div, .group-collected-paid div{
+    margin-left: 12px;
+}
+.group-assessed input, .group-collected-paid input{
+    width: 90%;
+}
+/** saving / loading modal **/
+a#overlaylaunch-inAbox {
+    display: block;
+    padding: 40px;
+    margin: 40px;
+    background-color: #efefef;
+    font-size: 1.6em;
+    text-decoration: none;
+    text-align: center;
+}
+
+#overlay-inAbox .wrapper {
+    text-align: center;
+}
+
+/* More important stuff */
+.overlay,#overlay-shade {
+    display: none;
+}
+
+#overlay-shade {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: #000;
+}
+
+.overlay {
+    position: absolute;
+    top: -300px;
+    left: 0;
+    width: 450px;
+    min-height: 200px;
+    z-index: 10000;
+    background-color: #F0F0F0;
+    /*border: 10px solid #CFCFCF;*/
+    color: #000;
+}
+.ie7 .overlay {
+    height: 200px;
+}
+.overlay .wrapper {
+    padding: 15px 30px 30px;
+}
+
+/** hide inline reference entity status **/
+.form-item-field-additional-owners-und-form-status, .form-item-field-additional-business-und-form-status, .form-item-field-additional-claimants-und-form-status{
+    display: none;
+}
+
+.remove-me, #edit-field-activity-summary-und-actions,
+.ief-entity-table .tablesorter-headerRow th:first-child,
+.ief-entity-table .tablesorter-filter-row td:first-child,
+.ief-entity-table .ief-row-entity td:first-child,
+.ief-entity-table .ief-tabledrag-header,
+.ief-entity-table .tablesorter-filter-row td:last-child,
+.form-item-field-additional-claimants-und-form-title, .form-item-field-additional-owners-und-form-title,
+.form-item-field-additional-business-und-form-title, .tabledrag-toggle-weight-wrapper,
+#edit-field-primary-business-contact-a-und-0-field-business-address-und-0 > legend,
+#edit-field-primary-claimant-address-und-0-field-business-address-und-0 > legend,
+.collapsed h3,
+#breadcrumb
+{
+    display: none;
+}
+.node-intake_form-form .vertical-tabs, .node-payment-form .vertical-tabs{
+    display: none !important;
+}
+
+ /** inline entity **/
+#edit-field-activity-summary .ief-form-row > div:first-child, .inline-entity-form-node-field_activity_id, .field-name-field-activity-id,
+.tabledrag-toggle-weight-wrapper,
+div[id^="edit-field-activity-summary-und-actions"],
+.field-name-field-attachments .field-items .field-item,
+div[class$="form-status"]
+{
+    display: none;
+}
+#edit-field-document-link,
+#edit-field-google-drive-folderhidden {
+    position: absolute;
+    left: -999em;
+}
+.field-name-field-attachments .field-items .field-item{
+    float: left;
+    width: 100%;
+    font-size: 11px;
+}
+.field-name-field-attachments .field-items .field-item .file a {
+    text-align: center;
+}
+.show-attachments img{
+    margin-left: 25px;
+    width: 30px;
+    height: 30px;
+}
+.ui-dialog .ief-form{
+	margin-left: 3%;
+}
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+#ief-entity-table-edit-field-additional-owners-und-entities .ief-row-form  .ui-dialog .ief-form-row .form-type-checkbox label{
+	font-size: 1.5em;
+	color: darkred;
+} 
+.ui-dialog .ui-dialog-titlebar{
+	display: none !important;
+} 
+
+
+.group-activity-summary-actions{
+	width: 100%;
+	float: left;
+	display: none;
+	margin-top: 15px;
+	margin-bottom: -15px;
+}
+
+#payment summary popup css
+
+.group-payment-wrapper, .group-clear-div{
+	clear:both;
+}
+.group-payment-left-escrow{
+	float:left;
+	width: 45%;
+}
+.group-payment-right-escrow{
+	float:right;
+	width: 45%;
+}
